@@ -1,0 +1,52 @@
+<!--
+title: Vault upgrade
+description: What the Ycash vault network upgrade changes, and where Kogany stands in implementing it.
+-->
+<header class="page-head">
+  <div class="container">
+    <p class="eyebrow">Network upgrade · branch ID <code>0x6d5b7a31</code></p>
+    <h1>The vault upgrade</h1>
+    <p class="lede">A height-activated Ycash network upgrade that adds vaults. A vault is YEC locked under rules that every full node checks. Yellowback (YED) is the first rule module built on it.</p>
+  </div>
+</header>
+<div class="container">
+  <div class="notice warn">
+    <p><strong>No activation height is set on any public network.</strong> The mainnet height and founding attestor set are fixed by the release that passes the upgrade's gates. Until then the upgrade runs on regtest and devnet only, activated with <code>-nuparams=6d5b7a31:&lt;height&gt;</code>.</p>
+  </div>
+  <div class="prose section">
+    <h2>What it changes</h2>
+    <ul>
+      <li><strong>Vaults.</strong> YEC locked by a script template, released only with the approval of a bonded <em>signer set</em>. If the set goes dormant, the owner can always recover the coins.</li>
+      <li><strong>Post-quantum signatures.</strong> Vault owners sign with SLH-DSA and YED holders with Falcon-512, from the first block of the upgrade.</li>
+      <li><strong>New opcodes</strong>, allocated above <code>OP_NOP10</code> and active only under the Vault branch ID: <code>OP_CHECKSEQUENCEVERIFY</code> (0xb2), <code>OP_CHECKSETSIG</code> (0xc0), <code>OP_CHECKSETDORMANT</code> (0xc1) and <code>OP_CHECKPQSIG</code> (0xc2).</li>
+      <li><strong>Transaction version.</strong> Vault-era transactions stay at version 4 (Sapling). Orchard and version 5 are not part of the upgrade.</li>
+      <li><strong>Yellowback.</strong> One registered rule module, <code>YED\0</code>: mint YED against YEC locked in a vault, redeem it, and let anyone claim undercollateralized positions. The module uses attested prices, and its fee rules are enforced by consensus.</li>
+      <li><strong>RPC.</strong> The node reports <code>rpcversion</code> 8 and adds the read RPCs <code>vault_*</code>, <code>set_*</code> and <code>yed_*</code>.</li>
+    </ul>
+
+    <h2>Kogany implementation status</h2>
+    <p class="muted">As of 2026-11-01. The authoritative table is the plan's execution status block.</p>
+    <ol class="waves">
+      <li><b>W0</b><span>Scaffolding: fork, baseline tag, CI allowlist, security CI</span><span class="state">in progress</span></li>
+      <li><b>W1</b><span>Ycash network: branch IDs, Equihash (192,7), YDF, checkpoints, P2P, sync</span><span class="state">not started</span></li>
+      <li><b>W2</b><span>Vault epoch: <code>NetworkUpgrade::Vault</code>, version-4-only rule</span><span class="state">not started</span></li>
+      <li><b>W3</b><span>Script and post-quantum verification</span><span class="state">not started</span></li>
+      <li><b>W4</b><span>The vault primitive: templates, acts, set state, reorgs</span><span class="state">not started</span></li>
+      <li><b>W5</b><span>The YED rule module</span><span class="state">not started</span></li>
+      <li><b>W6</b><span>Relay policy and mempool</span><span class="state">not started</span></li>
+      <li><b>W7</b><span>Read RPCs and the <code>rpcversion</code> 8 contract</span><span class="state">not started</span></li>
+      <li><b>W8</b><span>Mining: template filter, coinbase tag</span><span class="state">not started</span></li>
+      <li><b>W9</b><span>Wallet through <code>yewd</code>, the three-way mixed matrix, demonstration</span><span class="state">not started</span></li>
+    </ol>
+
+    <h2>Node lines</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Line</th><th>Lineage</th><th>Role</th></tr></thead>
+      <tbody>
+        <tr><td><code>ycashd</code> 6.22.x</td><td>Zcash 6.x, C++</td><td>Release line for the upgrade</td></tr>
+        <tr><td><code>ycashd</code> 4.5</td><td>Zcash 4.5, C++</td><td>Primary development line</td></tr>
+        <tr><td>Kogany</td><td>Zakura / Zebra, Rust</td><td>Third line; a release line after the W9 sign-off</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</div>

@@ -1,0 +1,30 @@
+<!--
+title: Snapshots
+description: Testnet state bundles for fast node bootstrap, how they are checked, and why Kogany recomputes vault state instead of importing it.
+-->
+<header class="page-head">
+  <div class="container">
+    <p class="eyebrow">Fast bootstrap</p>
+    <h1>Snapshots</h1>
+    <p class="lede">A state bundle is a packed, checksummed copy of a node's data at an agreed block. With one, a new node starts in minutes instead of syncing from genesis.</p>
+  </div>
+</header>
+<div class="container prose section">
+  <div class="notice warn">
+    <p><strong>No bundles are published yet.</strong> The snapshotter is built and tested against a stand-in node, but it has not yet run against a live testnet. When bundles exist, they're listed here from their manifest.</p>
+  </div>
+
+  <h2>What a bundle is</h2>
+  <p>Bundles use the <code>ycash-state/1</code> format: a node's working files at a fixed height, with the fingerprints needed to check them. Before a bundle is published, <strong>two different node programs must agree on its fingerprints</strong>. A bundle only one implementation vouches for is never published.</p>
+  <p>Bundles are made for the public testnets first. A mainnet bundle would only follow a mainnet activation.</p>
+
+  <h2>Trust</h2>
+  <p>A node restored from a bundle trusts whoever produced it for the history before that height. Syncing from the network keeps a node fully self-validating. Use a bundle to save time on a testnet, and sync from genesis when that independence matters.</p>
+
+  <h2>Kogany and imported state</h2>
+  <p>Zakura can import some chain state from artifacts shipped with a release. For Ycash, Kogany turns that off. <strong>Vault and Yellowback state are never imported</strong>: Kogany computes them itself for every block it commits, including blocks reached through checkpoints. Checkpoints stop before the vault epoch, so every vault-era block is fully validated. This may be revisited once Kogany's vault state matches the C++ nodes'.</p>
+  <p>For the same reason, restoring a <code>ycashd</code> bundle into Kogany won't work: the two use different database formats.</p>
+
+  <h2>Restoring into ycashd</h2>
+  <p>The restore tool, <code>ycash-bootstrap</code>, ships with the node repositories. Its exact commands, with each bundle's height and checksum, will appear here alongside the first published bundle.</p>
+</div>

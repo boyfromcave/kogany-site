@@ -1,0 +1,17 @@
+<!--
+title: Three node lines, one state hash
+description: How Kogany is held to byte-for-byte agreement with the two C++ ycashd lines, and the Rust traps that threaten it.
+date: 2026-11-01
+-->
+<p>The vault upgrade adds state that every node must track identically: signer sets, vaults, Yellowback positions, attested prices. Each C++ node folds that state into one <code>statehash</code> per block. Kogany has to produce the same bytes.</p>
+<h2>The encoder is separate from the database</h2>
+<p>Kogany stores state in Zakura's own database layout, which differs from <code>ycashd</code>'s. So the canonical preimage encoder is written apart from storage, following the published serialization rules rather than either node's on-disk format. Storage can change; the hash can't.</p>
+<h2>Where Rust differs</h2>
+<ul>
+  <li><strong>Map order.</strong> A <code>HashMap</code> iterates in random order, while the C++ nodes iterate ordered maps. Kogany uses <code>BTreeMap</code> wherever order reaches the hash.</li>
+  <li><strong>Overflow.</strong> Release builds wrap on integer overflow. Consensus arithmetic uses <code>checked_*</code> and 128-bit intermediates only, and the math test cases run in release builds as well as debug.</li>
+  <li><strong>Concurrency.</strong> Zakura verifies the transactions in a block concurrently. Vault acts must be applied in order, so they run in contextual validation against a snapshot of the parent block's state.</li>
+  <li><strong>Checkpoints.</strong> Zakura commits checkpointed blocks without contextual checks. Kogany computes vault deltas on every commit path, and its checkpoints stop before the vault epoch.</li>
+</ul>
+<h2>The test</h2>
+<p>On one devnet, all three nodes mine and relay together. Every 100 blocks a harness compares their state hashes, and any disagreement fails the run. The same golden vectors, generated once from the C++ lines, are replayed in Kogany's unit tests.</p>

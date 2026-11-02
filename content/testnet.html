@@ -1,0 +1,59 @@
+<!--
+title: Testnet
+description: The Ycash Yellowback testnets (yb-fast and yb-slow), their faucets, and how Kogany will join them.
+-->
+<header class="page-head">
+  <div class="container">
+    <p class="eyebrow">Public testnets</p>
+    <h1>Testnet</h1>
+    <p class="lede">Two public Ycash testnets run the vault upgrade: a fast one for quick experiments and a slow one that behaves more like mainnet. Testnet YEC is free and worthless.</p>
+  </div>
+</header>
+<div class="container section" data-live="/data/testnet.json">
+  <div class="notice warn" data-live-warning>
+    <p><strong>Not deployed yet.</strong> The testnets are defined and their services built, but they have not been launched on public infrastructure. The figures below are the build-time configuration, not live readings.</p>
+  </div>
+  <div class="cards">
+    <section class="card" data-network="yb-fast">
+      <h3><span class="dot"></span>yb-fast</h3>
+      <p class="sub">Fast testnet profile: short blocks and scaled Yellowback timings</p>
+      <dl>
+        <dt>State</dt><dd data-field="state">not deployed</dd>
+        <dt>Tip height</dt><dd data-field="height">unavailable</dd>
+        <dt>Vault active</dt><dd data-field="vault">unavailable</dd>
+        <dt>Attestor seats</dt><dd data-field="attestors">7 house seats</dd>
+        <dt>Light wallet</dt><dd data-field="lightwalletd">lite-fast.ycash.team</dd>
+        <dt>Explorer</dt><dd data-field="viz">viz-fast.ycash.team</dd>
+      </dl>
+      <div class="actions"><a class="button" data-faucet hidden href="#">Open the faucet</a></div>
+    </section>
+    <section class="card" data-network="yb-slow">
+      <h3><span class="dot"></span>yb-slow</h3>
+      <p class="sub">Slow testnet profile: mainnet timings</p>
+      <dl>
+        <dt>State</dt><dd data-field="state">not deployed</dd>
+        <dt>Tip height</dt><dd data-field="height">unavailable</dd>
+        <dt>Vault active</dt><dd data-field="vault">unavailable</dd>
+        <dt>Attestor seats</dt><dd data-field="attestors">3 house seats, 4 invited later</dd>
+        <dt>Light wallet</dt><dd data-field="lightwalletd">lite-slow.ycash.team</dd>
+        <dt>Explorer</dt><dd data-field="viz">viz-slow.ycash.team</dd>
+      </dl>
+      <div class="actions"><a class="button" data-faucet hidden href="#">Open the faucet</a></div>
+    </section>
+  </div>
+
+  <div class="prose">
+    <h2>The faucet</h2>
+    <p>Each testnet has its own faucet. It pays a small fixed amount of testnet YEC (1 YEC by default) and never pays YED: you mint YED yourself, against a vault. To keep it fair, the faucet limits requests per visitor and per address, enforces a daily cap, and may ask your browser to solve a short proof-of-work challenge. It refuses to pay unless its node reports the testnet profile it was configured for.</p>
+    <p>The faucet button above appears once a network's faucet is live and announced in the status feed.</p>
+
+    <h2>Joining with ycashd</h2>
+    <p>Until Kogany syncs the Ycash chain (wave W1), join with <code>ycashd</code> 6.22.x from the vault upgrade line. The testnet profile is chosen at startup, and both nodes report it in <code>getblockchaininfo</code> as <code>testnetprofile</code>. Keep the RPC port bound to localhost.</p>
+
+    <h2>Joining with Kogany</h2>
+    <p>Kogany will support the same fast and slow profiles. It will not support the older legacy testnet. These instructions will be filled in, with the exact revision to build, once a Kogany build passes the testnet sync gate against <code>ycashd</code>.</p>
+
+    <h2>Status feed</h2>
+    <p>This page reads <a href="/data/testnet.json"><code>/data/testnet.json</code></a> when it loads. If the feed is unavailable or not <code>live</code>, the page keeps the build-time values and shows the warning above; it never guesses.</p>
+  </div>
+</div>

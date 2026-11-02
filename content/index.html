@@ -1,0 +1,45 @@
+<!--
+title: Kogany — a Rust full node for Ycash
+description: Kogany is a Ycash full node written in Rust, built on Zakura, and the third node line for the Ycash vault upgrade.
+-->
+<header class="hero">
+  <svg class="wash" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><use href="/assets/kogany-mark.svg#mark"/></svg>
+  <div class="container">
+    <p class="eyebrow">Ycash full node · Rust</p>
+    <h1>A Rust node for Ycash, ready for <em>vaults</em>.</h1>
+    <p class="lede">Kogany brings Zakura's fast, modern node architecture to the Ycash network and carries the vault upgrade with it.</p>
+    <div class="actions">
+      <a class="button" href="/download/">Get Kogany</a>
+      <a class="button ghost" href="/vault/">Vault upgrade status</a>
+      <span class="badge"><span class="dot gold"></span>Pre-release: no published build yet</span>
+    </div>
+  </div>
+</header>
+<div class="container">
+  <div class="prose section">
+    <p><strong>Kogany</strong> is a full node for <a href="https://y.cash/" rel="noopener">Ycash</a>. It began as a fork of <a href="https://github.com/zakura-core/zakura" rel="noopener">Zakura</a>, a consensus-compatible Zcash node in Rust. We teach it Ycash's rules: its own branch IDs, Equihash (192,7) and the Ycash Development Fund. Then we add the <a href="/vault/">vault network upgrade</a>.</p>
+    <p>It is the third node line for the upgrade. The other two are <code>ycashd</code> 4.5 and <code>ycashd</code> 6.20. All three must agree block for block, and Kogany becomes a release line only after it passes that test.</p>
+  </div>
+  <section class="features" aria-label="What Kogany brings">
+    <article>
+      <h2>A second codebase checking the first</h2>
+      <p>Two independent implementations of the vault and Yellowback rules, in C++ and in Rust, have to compute the same state hash at every block. If they disagree, a bug has been found before it reaches a real coin.</p>
+      <a class="more" href="/engineering/three-lines-one-state-hash/">How the check works</a>
+    </article>
+    <article>
+      <h2>Zakura's sync engine</h2>
+      <p>Kogany inherits Zakura's concurrent block verification, storage and networking. Vault-era blocks are always fully validated: checkpoints never cover them.</p>
+      <a class="more" href="/about/">What we keep from upstream</a>
+    </article>
+    <article>
+      <h2>A wallet beside the node, not inside it</h2>
+      <p>Like Zakura, Kogany has no built-in wallet. <code>yewd</code>, a daemon built on the YEW wallet core, serves the <code>ycashd</code> wallet RPCs, so YecWallet and the existing tools keep working.</p>
+      <a class="more" href="/yewd/">About yewd</a>
+    </article>
+    <article>
+      <h2>Public testnets and a faucet</h2>
+      <p>The fast and slow Yellowback testnets run with free testnet YEC from a rate-limited faucet. Kogany nodes join them once the vault rules are ported.</p>
+      <a class="more" href="/testnet/">Testnet status</a>
+    </article>
+  </section>
+</div>

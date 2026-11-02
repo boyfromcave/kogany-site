@@ -1,0 +1,41 @@
+<!--
+title: Download
+description: How Kogany will be distributed and verified. There is no published release yet.
+-->
+<header class="page-head">
+  <div class="container">
+    <p class="eyebrow">Releases</p>
+    <h1>Download</h1>
+    <p class="lede">Kogany has not had a release. This page says how releases will be published and checked, so you know what a genuine one looks like.</p>
+  </div>
+</header>
+<div class="container prose section">
+  <div class="notice warn">
+    <p><strong>There is no Kogany release yet.</strong> A binary, image or package calling itself Kogany is not from this project until it is listed here. Version numbers, dates and signing keys appear on this page first; if this page doesn't show one, it doesn't exist.</p>
+  </div>
+
+  <h2>Building from source today</h2>
+  <p>Developers can build the integration branch. Kogany needs the <code>ycash</code> cargo feature to speak Ycash: without it, the binary behaves like upstream Zakura on Zcash networks. That feature-off build is used to test that the dormant vault code changes nothing there.</p>
+<pre data-copy><code>git clone https://github.com/boyfromcave/kogany
+cd kogany
+git checkout upgrade/vault
+cargo build --release --locked --features ycash</code></pre>
+  <p>Until wave W1 lands, a <code>ycash</code> build won't sync the Ycash chain. For a node that runs today, use <code>ycashd</code>: 6.22.x for the vault upgrade line.</p>
+
+  <h2>How releases will be published</h2>
+  <ul>
+    <li><strong>GitHub releases</strong> on <a href="https://github.com/boyfromcave/kogany/releases" rel="noopener"><code>boyfromcave/kogany</code></a>: prebuilt binaries, a source tarball and <code>SHA256SUMS.txt</code>.</li>
+    <li><strong>Tag-driven builds.</strong> As with <code>ycashd</code>, a release workflow builds from a tag and refuses a tag whose version doesn't match its line or whose upgrade heights are unset.</li>
+    <li><strong>Signed checksums.</strong> <code>SHA256SUMS.txt</code> is signed by a maintainer key published here, and each asset carries a build provenance attestation from CI.</li>
+  </ul>
+  <p>Kogany becomes a release line only by explicit sign-off at the end of wave W9. Before that, no Kogany build is a release candidate.</p>
+
+  <h2>Verifying a release (once one exists)</h2>
+  <p>The check has three parts: the checksum file's signature, each binary against the checksum file, and the CI attestation. The signing tool and public key are announced with the first release. The shape:</p>
+<pre data-copy><code># 1. the signature over SHA256SUMS.txt, against the key on this page
+# 2. your downloads against SHA256SUMS.txt
+sha256sum -c --ignore-missing SHA256SUMS.txt     # macOS: shasum -a 256 -c --ignore-missing SHA256SUMS.txt
+# 3. the build provenance
+gh attestation verify &lt;binary&gt; --repo boyfromcave/kogany</code></pre>
+  <p>If any step fails, delete the download and <a href="https://github.com/boyfromcave/kogany/issues" rel="noopener">open an issue</a>.</p>
+</div>

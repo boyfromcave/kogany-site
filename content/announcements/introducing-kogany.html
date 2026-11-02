@@ -1,0 +1,11 @@
+<!--
+title: Introducing Kogany
+description: Ycash gets a third node line: a Rust full node built on Zakura, carrying the vault upgrade.
+date: 2026-11-01
+-->
+<p>Today we're starting <strong>Kogany</strong>, a Ycash full node written in Rust. It's our fork of <a href="https://github.com/zakura-core/zakura" rel="noopener">Zakura</a>, the consensus-compatible Zcash node from the Zebra lineage. We forked from Zakura's main branch at commit <code>2b062412c5</code>, just after its 1.7.0 release.</p>
+<h2>Why a third node</h2>
+<p>The vault upgrade already runs on two C++ node lines, <code>ycashd</code> 4.5 and 6.20. Both come from the same family of code, though, so a mistake in shared logic can hide in both. Kogany is an independent implementation in a different language and architecture. Running all three side by side and requiring the same vault and Yellowback state hash at every block is the strongest consensus test we can build.</p>
+<h2>The plan</h2>
+<p>The work runs in ten waves. First Kogany learns to be a Ycash node: branch IDs, Equihash (192,7), the Development Fund and checkpoints. Then come the vault epoch, script and post-quantum verification, the vault primitive, the YED module, mempool policy, the read RPCs and mining. The last wave runs the full Yellowback suite against all three nodes on one devnet. Wallet RPCs come from <a href="/yewd/"><code>yewd</code></a>, a daemon built on the YEW wallet core.</p>
+<p>Kogany is a release line only after that last wave, and only by explicit sign-off. Until then, nothing here is a release. Follow progress on the <a href="/vault/">vault upgrade page</a>.</p>

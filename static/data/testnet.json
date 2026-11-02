@@ -1,0 +1,10 @@
+{
+  "status": "configured",
+  "generated": "2026-11-01",
+  "networks": [
+    {"id": "yb-fast", "state": "not deployed", "height": null, "vault": null, "attestors": "7 house seats",
+     "lightwalletd": "lite-fast.ycash.team", "viz": "viz-fast.ycash.team", "faucet_url": null},
+    {"id": "yb-slow", "state": "not deployed", "height": null, "vault": null, "attestors": "3 house seats, 4 invited later",
+     "lightwalletd": "lite-slow.ycash.team", "viz": "viz-slow.ycash.team", "faucet_url": null}
+  ]
+}
