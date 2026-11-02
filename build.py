@@ -109,7 +109,7 @@ def layout(meta, body, url):
 <a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header">
   <div class="container">
-    <a class="home-link" href="/">{mark("logo")}<span class="wordmark">kogany</span></a>
+    <a class="home-link" href="/">{mark("logo")}<span class="wordmark">Kogany</span></a>
     <button class="nav-toggle" type="button" aria-controls="site-nav" aria-expanded="false" aria-label="Menu" data-nav-toggle hidden>
       <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
     </button>
