@@ -70,8 +70,8 @@ def url_for(path):
     return "/" + "".join(p + "/" for p in parts)
 
 
-def mark(cls):
-    return f'<svg class="{cls}" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><use href="/assets/kogany-mark.svg#mark"/></svg>'
+def mark(cls, size=160):
+    return f'<img class="{cls}" src="/assets/kogany-flower-{size}.webp" alt="" width="{size}" height="{size}">'
 
 
 def layout(meta, body, url):
@@ -97,11 +97,12 @@ def layout(meta, body, url):
 <meta property="og:title" content="{html.escape(title, quote=True)}">
 <meta property="og:description" content="{desc}">
 <meta property="og:url" content="{SITE}{url}">
-<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/assets/favicon-48.png" type="image/png" sizes="48x48">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <link rel="alternate" type="application/atom+xml" title="{NAME} announcements" href="/announcements/atom.xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@600&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kaushan+Script&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&display=swap">
 <link rel="stylesheet" href="/assets/site.css">
 </head>
 <body>
@@ -194,7 +195,7 @@ def main():
             banner = ""
             if "banner" in p["meta"]:
                 big, _, small = p["meta"]["banner"].partition("|")
-                banner = (f'<div class="banner" aria-hidden="true">{mark("banner-mark")}'
+                banner = (f'<div class="banner" aria-hidden="true">{mark("banner-mark", 640)}'
                           f'<div class="v">{html.escape(big.strip())}<small>{html.escape(small.strip())}</small></div></div>')
             body = (f'<div class="container"><article class="post prose"><p class="eyebrow">'
                     f'<time datetime="{p["meta"]["date"]}">{long_date(p["meta"]["date"])}</time></p>'

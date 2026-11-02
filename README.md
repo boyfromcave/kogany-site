@@ -14,7 +14,9 @@ make check   # build and check internal links
 |---|---|
 | `content/*.html` | pages: an HTML fragment headed by a `title/description[/date]` comment; `content/x.html` → `/x/` |
 | `content/announcements/`, `content/engineering/` | dated posts; listed on their section page (`{{ announcements }}`), announcements also in `atom.xml` |
-| `static/assets/` | `site.css`, `site.js`, the Kogany mark, favicon, Ycash logo |
+| `static/assets/` | `site.css`, `site.js`, the flower mark (`kogany-flower-{640,160}.webp`), favicon and touch icon, Ycash logo |
+| `art/` | source artwork, not published: `image_5743ea06.jpg`, the gold vault flower (its checkerboard is baked in) |
+| `tools/cutout.py` | cuts the flower out of the source into the transparent web assets: `.venv/bin/python -I tools/cutout.py art/image_5743ea06.jpg static/assets` (Pillow) |
 | `static/data/dashboard.json` | the vault dashboard feed (shape in `static/data/README.md`) |
 | `build.py` | the layout (header, nav, footer) and the generator |
 | `docs/zakura-site-survey.md` | what we learned from zakura.com's operations, and what we still need |
