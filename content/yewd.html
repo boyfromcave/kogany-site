@@ -1,19 +1,20 @@
 <!--
-title: yewd — wallet RPCs for Kogany
+title: yewd
 description: yewd serves the ycashd wallet RPCs beside a Kogany node, so YecWallet and existing tools keep working.
 -->
-<header class="page-head">
-  <div class="container">
+<div class="container">
+  <header class="page-head">
     <p class="eyebrow">Wallet compatibility</p>
-    <h1>yewd</h1>
-    <p class="lede"><code>ycashd</code> has a wallet inside the node. Kogany, like Zakura, doesn't. <code>yewd</code> fills the gap: it serves the same wallet RPCs from a separate process.</p>
+    <h1><code>ycashd</code> wallet RPCs</h1>
+    <p class="lede">For software that still speaks to <code>ycashd</code>'s built-in wallet, <code>yewd</code> serves the same RPCs beside a Kogany node.</p>
+  </header>
+  <div class="column prose section-end">
+    <div class="notice"><p><strong>Planned.</strong> <code>yewd</code> is built alongside waves W5–W8. It is finished when the existing wallet contract tests and wallet scripts pass against Kogany plus <code>yewd</code>, with no <code>ycashd</code> present.</p></div>
+    <h2>What it is</h2>
+    <p><code>yewd</code> is the YEW wallet core run as a daemon. It's the third front end on that core, beside the mobile app and the web wallet. It follows Kogany through the node's RPC, its indexer streams and lightwalletd, and presents the <code>ycashd</code> wallet interface, Yellowback calls included, on its own port.</p>
+    <h2>Why a separate process</h2>
+    <p>It keeps the consensus node small, and the wallet logic is code that already runs in YEW's apps. A separate wallet can fall behind the node, though. So before answering any wallet call, <code>yewd</code> checks that it has caught up with the node's best block and mempool, returns an error instead of stale balances when it hasn't, and rewinds cleanly through reorganizations.</p>
+    <h2>Who uses it</h2>
+    <ul><li>YecWallet, the desktop wallet</li><li>Yellowback price attestors and bridge attestors</li><li>x402 agent payments, which sign through the node wallet</li></ul>
   </div>
-</header>
-<div class="container prose section">
-  <h2>What it is</h2>
-  <p><code>yewd</code> is the YEW wallet core run as a daemon. It's the third front end on that core, beside the mobile app and the web wallet, and lives in the same repository. It follows Kogany through the node's RPC and indexer streams and lightwalletd, and presents the <code>ycashd</code> wallet interface, Yellowback calls included, on its own port.</p>
-  <h2>Why a separate process</h2>
-  <p>It keeps the consensus node small, and it means the wallet logic is code that already runs in YEW's apps. It does add one hazard: a separate wallet can fall behind the node. So before answering any wallet call, <code>yewd</code> checks that it has caught up with the node's best block and mempool. If it hasn't, it returns an error rather than stale balances, and it rewinds cleanly through reorganizations.</p>
-  <h2>Status</h2>
-  <p>Planned. It is built alongside waves W5–W8 and is finished when the existing wallet contract tests and wallet scripts pass against Kogany plus <code>yewd</code> with no <code>ycashd</code> present.</p>
 </div>

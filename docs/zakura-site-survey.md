@@ -1,23 +1,25 @@
 # What zakura.com taught us — survey, 2026-11-01
 
 A read of zakura.com (a static site, generated, one CSS file and one small script) to learn which
-operational services a node project publishes and how. **Kogany's site copies the information
-architecture and the operational patterns, not Zakura's design, wording or logo**: those belong to
-the Zakura team, and an imitation of their site would misrepresent who runs ours.
+operational services a node project publishes and how. **Kogany's site follows its information
+architecture, page layouts, components and interaction patterns closely (revision 2, at the lead
+architect's request, so Zcash users can find their way), in our own code, copy, mark and gold accent.**
+Zakura's site source is not published under a license (zakura-core's public repos are the node and
+libraries), so nothing is copied from it: no CSS, text, logo or imagery.
 
 ## Their page map, and ours
 
 | zakura.com | What it does | kogany.net | Our backing service today |
 |---|---|---|---|
 | `/` | hero, latest-release badge, four feature cards | `/` | — |
-| `/nu7/` (nav item tagged "Dashboard") | upgrade rollout dashboard: selected network, live chain figures, rule parameters per height, join config, faucet and snapshot controls | `/vault/` (rollout, waves) + `/testnet/` (networks, faucet) | ycash-ops `eks/testnet/networks.json`; ycash-infra `charts/ycash-testnet` status page (not deployed) |
+| `/nu7/` (nav item tagged "Dashboard") | upgrade rollout dashboard: selected network, live chain figures, rule parameters per height, join config, faucet and snapshot controls | `/vault/` (rollout track, yb-fast/yb-slow tabs, stat tiles, blocks table, faucet and visualizer panels, run-a-node steps; feed `data/dashboard.json`) | ycash-ops `eks/testnet/networks.json`; ycash-infra `charts/ycash-testnet` status page (not deployed) |
 | `/download/` | install via cargo / installer script / binaries / Docker; signed checksums + CI attestations; official-channel list | `/download/` | ycash6 tag-driven release workflow; Kogany has none until K-19(a) |
 | `/snapshots/` | live cards from JSON manifests (pruned, archive, third-party), copyable restore commands, roles daily/monthly/historical | `/snapshots/` | ycash-infra `bundles/state` (`ycash-state/1`, two-implementation agreement), snapshotter CronJob (not yet run live) |
 | `/zcashd/` | compatibility mode for software that expects the old node | `/yewd/` | `yew/yewd` (plan §3b, S0–S5) |
 | `/announcements/` + Atom feed | release notes per version | `/announcements/` + `atom.xml` | — |
 | `/engineering/` | technical write-ups | `/engineering/` | — |
 | `/about/` | team | `/about/` | — |
-| `/ironwood/` | a protocol programme with audits, history, migration | (none yet) | the vault upgrade plan's audits could go under `/vault/` later |
+| `/ironwood/` (+ audits, history, migration, resources tabs) | a protocol programme page with a live status panel and audit status | `/yellowback/` (+ audits, resources, history tabs) | docs/audits (both internal), upgrade plan |
 
 ## Operational patterns worth adopting
 

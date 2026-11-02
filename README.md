@@ -15,7 +15,7 @@ make check   # build and check internal links
 | `content/*.html` | pages: an HTML fragment headed by a `title/description[/date]` comment; `content/x.html` → `/x/` |
 | `content/announcements/`, `content/engineering/` | dated posts; listed on their section page (`{{ announcements }}`), announcements also in `atom.xml` |
 | `static/assets/` | `site.css`, `site.js`, the Kogany mark, favicon, Ycash logo |
-| `static/data/testnet.json` | the testnet page's status feed (shape in `static/data/README.md`) |
+| `static/data/dashboard.json` | the vault dashboard feed (shape in `static/data/README.md`) |
 | `build.py` | the layout (header, nav, footer) and the generator |
 | `docs/zakura-site-survey.md` | what we learned from zakura.com's operations, and what we still need |
 

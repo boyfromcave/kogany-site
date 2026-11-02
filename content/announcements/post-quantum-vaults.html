@@ -1,0 +1,15 @@
+<!--
+title: Vaults are post-quantum from day one
+description: Vault owners sign with SLH-DSA and YED holders with Falcon-512 from the first block of the vault upgrade, verified by a new opcode.
+date: 2026-10-11
+banner: 0xc2 | post-quantum vaults
+-->
+<p>The vault upgrade will not ship with signatures a future quantum computer could forge. From the first block it activates, <strong>vault owners sign with SLH-DSA</strong> (SHA2-128s) and <strong>YED holders sign with Falcon-512</strong>, both checked by a new script opcode, <code>OP_CHECKPQSIG</code> (0xc2).</p>
+<h2>What changes</h2>
+<ul>
+  <li><strong>Owners are post-quantum only.</strong> Every vault's owner key, including the key used for owner recovery, is an SLH-DSA key. Its security rests only on hash functions.</li>
+  <li><strong>YED holders use Falcon-512.</strong> Its much smaller signatures keep everyday YED transfers affordable.</li>
+  <li><strong>Large keys, carefully pushed.</strong> Signatures are pushed in canonical 520-byte chunks, each <code>OP_CHECKPQSIG</code> counts as 20 signature operations, and one script may run at most one post-quantum check.</li>
+</ul>
+<h2>Review</h2>
+<p>The Falcon verification path had an independent internal audit on 2026-10-10. It is a byte-identical copy of the reference implementation, deterministic across compilers, and agreed with two other verifiers on every one of 6,503 test inputs. The audit found no critical or high issues. The remaining risk is at the protocol level: a signature scheme not yet fully standardized becomes part of consensus. That is recorded in the <a href="/yellowback/audits/">audits page</a>.</p>

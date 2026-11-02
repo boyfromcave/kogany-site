@@ -1,6 +1,6 @@
 // kogany.net — the only script. Loaded in <head> so a stored theme applies
-// before first paint. Every feature is an enhancement: the pages are complete
-// without JavaScript (tab panels all show, status falls back to build-time data).
+// before first paint. Every feature is an enhancement: pages are complete without
+// JavaScript (all command variants show, status shows build-time placeholders).
 (function () {
   "use strict";
   var root = document.documentElement;
@@ -23,7 +23,6 @@
 
   function $(sel, ctx) { return (ctx || document).querySelector(sel); }
   function $$(sel, ctx) { return Array.prototype.slice.call((ctx || document).querySelectorAll(sel)); }
-  function text(el, value) { if (el) el.textContent = value == null || value === "" ? "unavailable" : String(value); }
 
   function wireTheme() {
     var btn = $("[data-theme-toggle]");
@@ -48,66 +47,107 @@
   }
 
   function wireCopy() {
-    $$("pre[data-copy]").forEach(function (pre) {
-      var wrap = document.createElement("div");
-      wrap.className = "copyable";
-      pre.parentNode.insertBefore(wrap, pre);
-      wrap.appendChild(pre);
-      var b = document.createElement("button");
-      b.type = "button"; b.className = "copy-btn"; b.textContent = "copy";
+    $$("[data-copy-target]").forEach(function (b) {
       b.addEventListener("click", function () {
-        navigator.clipboard.writeText(pre.innerText.trim()).then(function () {
-          b.textContent = "copied";
-          setTimeout(function () { b.textContent = "copy"; }, 1500);
+        var src = document.getElementById(b.getAttribute("data-copy-target"));
+        if (!src || !navigator.clipboard) return;
+        var clone = src.cloneNode(true);
+        $$("[hidden]", clone).forEach(function (n) { n.remove(); });
+        navigator.clipboard.writeText(clone.textContent.replace(/\n{3,}/g, "\n\n").trim()).then(function () {
+          b.textContent = "Copied";
+          setTimeout(function () { b.textContent = "Copy"; }, 1500);
         });
       });
-      wrap.appendChild(b);
     });
   }
 
-  function wireTabs() {
-    $$(".tabs").forEach(function (box) {
-      var tabs = $$('[role="tab"]', box);
-      function select(tab) {
-        tabs.forEach(function (t) {
-          var on = t === tab;
-          t.setAttribute("aria-selected", on ? "true" : "false");
-          t.tabIndex = on ? 0 : -1;
-          document.getElementById(t.getAttribute("aria-controls")).hidden = !on;
+  // Snapshot commands: one <pre>, variants marked data-only="pruned|aria2|curl".
+  function wireCommands() {
+    $$("[data-cmd]").forEach(function (box) {
+      var state = { family: "pruned", tool: "aria2" };
+      function render() {
+        $$("[data-cmd-family]", box).forEach(function (b) { b.setAttribute("aria-selected", b.dataset.cmdFamily === state.family); });
+        $$("[data-cmd-tool]", box).forEach(function (b) { b.setAttribute("aria-selected", b.dataset.cmdTool === state.tool); });
+        $$("[data-only]", box).forEach(function (el) {
+          var v = el.dataset.only;
+          el.hidden = (v === "pruned" && state.family !== "pruned") ||
+                      ((v === "aria2" || v === "curl") && v !== state.tool);
         });
       }
-      tabs.forEach(function (t) { t.addEventListener("click", function () { select(t); }); });
-      if (tabs.length) select(tabs[0]);
+      $$("[data-cmd-family]", box).forEach(function (b) { b.addEventListener("click", function () { state.family = b.dataset.cmdFamily; render(); }); });
+      $$("[data-cmd-tool]", box).forEach(function (b) { b.addEventListener("click", function () { state.tool = b.dataset.cmdTool; render(); }); });
+      render();
     });
   }
 
-  // Live status. A page opts in with data-live="<json url>". The JSON's shape is
-  // documented in static/data/README.md. A failed or stale fetch keeps the
-  // build-time values and shows the dated-data warning; it never invents values.
-  function wireLive() {
-    $$("[data-live]").forEach(function (box) {
-      var url = box.getAttribute("data-live");
-      var warn = $("[data-live-warning]", box);
-      fetch(url, { cache: "no-store" })
-        .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
-        .then(function (data) {
-          if (data.status !== "live") throw new Error("not live");
-          (data.networks || []).forEach(function (n) {
-            var card = $('[data-network="' + n.id + '"]', box);
-            if (!card) return;
-            $$("[data-field]", card).forEach(function (el) { text(el, n[el.getAttribute("data-field")]); });
-            var dot = $(".dot", card);
-            if (dot) dot.className = "dot " + (n.state === "up" ? "ok" : n.state === "degraded" ? "warn" : "");
-            var faucet = $("[data-faucet]", card);
-            if (faucet && n.faucet_url) { faucet.href = n.faucet_url; faucet.hidden = false; }
+  // Dashboard. The feed (static/data/README.md) carries one entry per network.
+  // Only status "live" clears the warning; null values render as a dash, never a guess.
+  function wireDashboard() {
+    var box = $("[data-live]");
+    if (!box) return;
+    var feed = null, profile = "yb-fast";
+    var tabs = $$("[data-profile]", box);
+    var warn = $("[data-live-warning]", box);
+
+    function fill() {
+      tabs.forEach(function (t) { t.setAttribute("aria-selected", t.dataset.profile === profile); });
+      var net = feed && feed.networks && feed.networks[profile];
+      $$("[data-field]", box).forEach(function (el) {
+        var key = el.dataset.field;
+        if (el.dataset.orig === undefined) el.dataset.orig = el.textContent;
+        if (key === "network_label") { el.textContent = profile; return; }
+        if (!net || !(key in net)) return;
+        var v = net[key];
+        el.textContent = v === null || v === undefined || v === "" ? el.dataset.orig : String(v);
+      });
+      var rows = $("[data-field-rows=blocks]", box);
+      if (rows && net && net.blocks && net.blocks.length) {
+        rows.innerHTML = "";
+        net.blocks.slice(0, 6).forEach(function (b) {
+          var tr = document.createElement("tr");
+          [String(b.height), b.hash, b.time].forEach(function (v, i) {
+            var td = document.createElement("td");
+            td.textContent = v;
+            if (i === 1) td.className = "hash";
+            if (i === 2) td.className = "r";
+            tr.appendChild(td);
           });
-          if (warn) warn.hidden = true;
-        })
-        .catch(function () { if (warn) warn.hidden = false; });
+          rows.appendChild(tr);
+        });
+      }
+      var form = $("[data-faucet-form]", box);
+      if (form) {
+        var on = !!(feed && feed.status === "live" && net && net.faucet_url);
+        $$("input, button", form).forEach(function (el) { el.disabled = !on; });
+        form.action = on ? net.faucet_url : "";
+        $("[data-faucet-status]", form).textContent = on
+          ? "Opens the " + profile + " faucet, which checks the address and may ask your browser for a short proof of work."
+          : "Faucet offline: it opens with the testnet launch.";
+      }
+      var viz = $("[data-viz-link]", box);
+      if (viz) {
+        var vurl = feed && feed.status === "live" && net && net.viz_url;
+        viz.setAttribute("aria-disabled", vurl ? "false" : "true");
+        viz.href = vurl || "#";
+      }
+    }
+
+    tabs.forEach(function (t) { t.addEventListener("click", function () { profile = t.dataset.profile; fill(); }); });
+    var form = $("[data-faucet-form]", box);
+    if (form) form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      if (!form.action) return;
+      var addr = form.elements.address.value.trim();
+      window.open(form.action + (addr ? "?address=" + encodeURIComponent(addr) : ""), "_blank", "noopener");
     });
+
+    fetch(box.dataset.live, { cache: "no-store" })
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(function (data) { feed = data; if (warn) warn.hidden = data.status === "live"; fill(); })
+      .catch(function () { if (warn) warn.hidden = false; fill(); });
   }
 
   document.addEventListener("DOMContentLoaded", function () {
-    wireTheme(); wireNav(); wireCopy(); wireTabs(); wireLive();
+    wireTheme(); wireNav(); wireCopy(); wireCommands(); wireDashboard();
   });
 })();

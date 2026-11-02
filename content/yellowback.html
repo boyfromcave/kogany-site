@@ -1,0 +1,36 @@
+<!--
+title: Yellowback
+description: Ycash Yellowback (YED) — a dollar backed by YEC locked in vaults, the first rule module on the Ycash vault upgrade.
+-->
+<div class="container">
+<nav class="section-tabs" aria-label="Yellowback"><a href="/yellowback/" aria-current="page">Overview</a><a href="/yellowback/audits/">Audits</a><a href="/yellowback/resources/">Resources</a><a href="/yellowback/history/">History</a></nav>
+<div class="programme"><aside class="side-logo"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="/assets/kogany-mark.svg#mark"/></svg><span>Yellowback</span></aside><div class="prose">
+  <h1>Yellowback (YED)</h1>
+  <p><strong>Ycash Yellowback (YED)</strong> is a decentralized dollar on Ycash, <code>1 YED = $1</code>. You lock YEC in a vault to mint YED and burn the YED to get your YEC back. Its rules run as the one registered module, <code>YED\0</code>, on the vault network upgrade, and every full node checks them.</p>
+  <section class="panel leftbar">
+    <span class="label accent">Vault upgrade · mainnet activation</span>
+    <h3>Not yet scheduled</h3>
+    <p class="muted small">Running on regtest and devnet · public testnets pending</p>
+    <dl class="meta" style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--rule)">
+      <dt>YED supply</dt><dd class="placeholder">—</dd>
+      <dt>YEC locked</dt><dd class="placeholder">—</dd>
+      <dt>Open vaults</dt><dd class="placeholder">—</dd>
+      <dt>Last updated</dt><dd class="placeholder">live figures arrive with the testnets</dd>
+    </dl>
+    <p class="small" style="text-align:right;margin:1rem 0 0"><a class="more" href="/vault/">Open the dashboard</a></p>
+  </section>
+  <h2>How it works</h2>
+  <ul>
+    <li><strong>Mint:</strong> lock YEC in a vault and mint YED against it, within the collateral tiers (300, 400 or 500 %).</li>
+    <li><strong>Redeem:</strong> burn YED to release the YEC, at any time. An early-release fee applies within the term (5, 2.5 or 1 %, by tier).</li>
+    <li><strong>Claim:</strong> anyone can claim a position that falls below 125 % collateral.</li>
+    <li><strong>Prices</strong> come from a bonded attestor set. Attestors sign prices and take no other on-chain action.</li>
+    <li><strong>Owner recovery:</strong> if the signer set goes dormant, the owner can always get the YEC back. Recovering a YED position always burns the YED.</li>
+  </ul>
+  <section class="panel">
+    <div class="status-row"><div><span class="label accent">Security assurance</span><h3>Audit status</h3></div><div class="when"><span class="tag pend">Internal only</span><br>Reviewed 10 Oct 2026</div></div>
+    <p>Two internal audits so far, both remediated. A third-party audit is a gate before any mainnet activation.</p>
+    <a class="more" href="/yellowback/audits/">View audits and findings</a>
+  </section>
+</div></div>
+</div>

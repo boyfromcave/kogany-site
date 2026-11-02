@@ -1,52 +1,136 @@
 <!--
-title: Vault upgrade
-description: What the Ycash vault network upgrade changes, and where Kogany stands in implementing it.
+title: Vault Dashboard
+description: Rollout status of the Ycash vault network upgrade, live testnet figures, the faucet and how to run a node.
 -->
-<header class="page-head">
-  <div class="container">
-    <p class="eyebrow">Network upgrade · branch ID <code>0x6d5b7a31</code></p>
-    <h1>The vault upgrade</h1>
-    <p class="lede">A height-activated Ycash network upgrade that adds vaults. A vault is YEC locked under rules that every full node checks. Yellowback (YED) is the first rule module built on it.</p>
-  </div>
-</header>
-<div class="container">
-  <div class="notice warn">
-    <p><strong>No activation height is set on any public network.</strong> The mainnet height and founding attestor set are fixed by the release that passes the upgrade's gates. Until then the upgrade runs on regtest and devnet only, activated with <code>-nuparams=6d5b7a31:&lt;height&gt;</code>.</p>
-  </div>
-  <div class="prose section">
-    <h2>What it changes</h2>
-    <ul>
-      <li><strong>Vaults.</strong> YEC locked by a script template, released only with the approval of a bonded <em>signer set</em>. If the set goes dormant, the owner can always recover the coins.</li>
-      <li><strong>Post-quantum signatures.</strong> Vault owners sign with SLH-DSA and YED holders with Falcon-512, from the first block of the upgrade.</li>
-      <li><strong>New opcodes</strong>, allocated above <code>OP_NOP10</code> and active only under the Vault branch ID: <code>OP_CHECKSEQUENCEVERIFY</code> (0xb2), <code>OP_CHECKSETSIG</code> (0xc0), <code>OP_CHECKSETDORMANT</code> (0xc1) and <code>OP_CHECKPQSIG</code> (0xc2).</li>
-      <li><strong>Transaction version.</strong> Vault-era transactions stay at version 4 (Sapling). Orchard and version 5 are not part of the upgrade.</li>
-      <li><strong>Yellowback.</strong> One registered rule module, <code>YED\0</code>: mint YED against YEC locked in a vault, redeem it, and let anyone claim undercollateralized positions. The module uses attested prices, and its fee rules are enforced by consensus.</li>
-      <li><strong>RPC.</strong> The node reports <code>rpcversion</code> 8 and adds the read RPCs <code>vault_*</code>, <code>set_*</code> and <code>yed_*</code>.</li>
-    </ul>
+<div class="container dash">
+  <div class="split">
+    <aside class="dash-side">
+      <p class="eyebrow">Ycash network upgrade</p>
+      <h1 class="dash-title">VAULT</h1>
+      <p class="dash-sub">Dashboard</p>
+      <p>Ycash's next network upgrade. This page tracks its rollout.</p>
+      <ul>
+        <li><b>Vaults</b><span>YEC locked under rules every full node checks, released by a bonded signer set.</span></li>
+        <li><b>Post-quantum keys</b><span>SLH-DSA vault owners and Falcon-512 YED holders from the first block.</span></li>
+        <li><b>Owner recovery</b><span>If a signer set goes dormant, the vault's owner can always take the YEC back.</span></li>
+        <li><b>Yellowback</b><span>Mint YED against locked YEC; undercollateralized positions can be claimed.</span></li>
+      </ul>
+    </aside>
 
-    <h2>Kogany implementation status</h2>
-    <p class="muted">As of 2026-11-01. The authoritative table is the plan's execution status block.</p>
-    <ol class="waves">
-      <li><b>W0</b><span>Scaffolding: fork, baseline tag, CI allowlist, security CI</span><span class="state">in progress</span></li>
-      <li><b>W1</b><span>Ycash network: branch IDs, Equihash (192,7), YDF, checkpoints, P2P, sync</span><span class="state">not started</span></li>
-      <li><b>W2</b><span>Vault epoch: <code>NetworkUpgrade::Vault</code>, version-4-only rule</span><span class="state">not started</span></li>
-      <li><b>W3</b><span>Script and post-quantum verification</span><span class="state">not started</span></li>
-      <li><b>W4</b><span>The vault primitive: templates, acts, set state, reorgs</span><span class="state">not started</span></li>
-      <li><b>W5</b><span>The YED rule module</span><span class="state">not started</span></li>
-      <li><b>W6</b><span>Relay policy and mempool</span><span class="state">not started</span></li>
-      <li><b>W7</b><span>Read RPCs and the <code>rpcversion</code> 8 contract</span><span class="state">not started</span></li>
-      <li><b>W8</b><span>Mining: template filter, coinbase tag</span><span class="state">not started</span></li>
-      <li><b>W9</b><span>Wallet through <code>yewd</code>, the three-way mixed matrix, demonstration</span><span class="state">not started</span></li>
-    </ol>
+    <div class="main" data-live="/data/dashboard.json">
+      <section class="rollout" aria-label="Rollout">
+        <span class="label accent">Rollout</span>
+        <div class="track">
+          <span class="done-line"></span>
+          <div class="stage"><span class="label">Regtest · devnet</span><span class="tag ok">Active</span><div class="when">-nuparams=6d5b7a31:&lt;h&gt;</div></div>
+          <div class="stage future"><span class="label">Testnet</span><span class="tag pend" data-field="testnet_state">Pending</span><div class="when" data-field="testnet_height">Height to be set</div></div>
+          <div class="stage future"><span class="label">Mainnet</span><span class="tag">Not scheduled</span><div class="when">Set by the gate-passing release</div></div>
+        </div>
+      </section>
 
-    <h2>Node lines</h2>
-    <div class="table-wrap"><table>
-      <thead><tr><th>Line</th><th>Lineage</th><th>Role</th></tr></thead>
-      <tbody>
-        <tr><td><code>ycashd</code> 6.22.x</td><td>Zcash 6.x, C++</td><td>Release line for the upgrade</td></tr>
-        <tr><td><code>ycashd</code> 4.5</td><td>Zcash 4.5, C++</td><td>Primary development line</td></tr>
-        <tr><td>Kogany</td><td>Zakura / Zebra, Rust</td><td>Third line; a release line after the W9 sign-off</td></tr>
-      </tbody>
-    </table></div>
+      <div class="profile-tabs" role="tablist" aria-label="Network">
+        <button type="button" role="tab" aria-selected="true" data-profile="yb-fast">yb-fast</button>
+        <button type="button" role="tab" aria-selected="false" data-profile="yb-slow">yb-slow</button>
+      </div>
+
+      <dl class="stats">
+        <div class="stat"><dt>Best block</dt><dd data-field="height">—</dd><dd data-field="best_hash">awaiting testnet launch</dd></div>
+        <div class="stat"><dt>Header time age</dt><dd data-field="header_age">—</dd><dd>At the observation time below</dd></div>
+        <div class="stat"><dt>Median interval</dt><dd data-field="median_interval">—</dd><dd data-field="interval_note">Last 300 intervals</dd></div>
+        <div class="stat"><dt>Open vaults</dt><dd data-field="vaults">—</dd><dd>Locked under live templates</dd></div>
+        <div class="stat"><dt>YED supply</dt><dd data-field="yed_supply">—</dd><dd>Minted against locked YEC</dd></div>
+        <div class="stat"><dt>Attestor seats</dt><dd data-field="seats">—</dd><dd data-field="seats_note">Founding signer set</dd></div>
+      </dl>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Height</th><th>Hash</th><th class="r">Header time · UTC</th></tr></thead>
+          <tbody data-field-rows="blocks">
+            <tr><td colspan="3" class="empty">No blocks yet: the public testnets have not launched.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="updated"><span data-field="updated">Build-time data</span> · <span data-field="network_label">yb-fast</span></p>
+      <div class="notice" data-live-warning><p><strong>Not live.</strong> These are placeholders until the testnet status service publishes. Values that aren't published show as a dash, never as estimates.</p></div>
+
+      <div class="dash-grid">
+        <section class="panel">
+          <span class="label accent">Testnet faucet</span>
+          <h3>Free testnet YEC</h3>
+          <p>Each request pays a small fixed amount of testnet YEC to a Ycash testnet address. The faucet never pays YED. Requests are limited per visitor and per address.</p>
+          <form class="faucet" data-faucet-form>
+            <label for="faucet-addr">Testnet address</label>
+            <div class="row">
+              <input id="faucet-addr" name="address" placeholder="ytestsapling1… or sm…" autocomplete="off" disabled>
+              <button type="submit" disabled>Request</button>
+            </div>
+            <span class="hint" data-faucet-status>Faucet offline: it opens with the testnet launch.</span>
+          </form>
+        </section>
+        <section class="panel">
+          <span class="label accent">Chain visualizer</span>
+          <h3>Watch the testnet</h3>
+          <p>Blocks, forks and the mempool, with vault and signer-set panels, streamed from a read-only node.</p>
+          <div class="viz" aria-hidden="true">
+            <svg viewBox="0 0 400 200" preserveAspectRatio="xMidYMid slice">
+              <g stroke="currentColor" fill="none" style="color:var(--rule-strong)">
+                <path d="M20 110H380" stroke-dasharray="2 6"/>
+                <path d="M210 110 C240 110 245 70 275 70 H330" stroke-dasharray="2 6"/>
+              </g>
+              <g style="fill:var(--bg-raised);stroke:var(--rule-strong)">
+                <rect x="30" y="96" width="34" height="28"/><rect x="80" y="96" width="34" height="28"/>
+                <rect x="130" y="96" width="34" height="28"/><rect x="180" y="96" width="34" height="28"/>
+                <rect x="280" y="56" width="34" height="28" stroke-dasharray="3 3"/>
+              </g>
+              <rect x="230" y="96" width="34" height="28" style="fill:var(--accent)"/>
+              <g style="fill:var(--accent);opacity:.55"><circle cx="300" cy="150" r="3"/><circle cx="318" cy="158" r="3"/><circle cx="336" cy="146" r="3"/><circle cx="352" cy="160" r="3"/></g>
+            </svg>
+            <span class="over">Preview · goes live with the testnets</span>
+          </div>
+          <div class="actions" style="margin-top:1rem"><a class="button" data-viz-link aria-disabled="true" href="#">Open the visualizer</a></div>
+        </section>
+      </div>
+
+      <div class="prose">
+        <h2>Run a node</h2>
+        <div class="params">
+          <div><span class="label">Network</span>Ycash testnet (<span data-field="network_label">yb-fast</span>)</div>
+          <div><span class="label">Vault activation height</span><span data-field="activation">to be set</span></div>
+          <div><span class="label">Vault branch ID</span>6d5b7a31</div>
+        </div>
+        <p>Join a public Ycash testnet with the matching revision and configuration. Keep testnet data apart from mainnet's, and keep JSON-RPC bound to localhost. A bootstrap snapshot is optional.</p>
+        <details>
+          <summary>Effective consensus parameters</summary>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Parameter</th><th>Value</th></tr></thead>
+            <tbody>
+              <tr><td>Transaction version</td><td>4 (Sapling); version 5 not valid under Vault</td></tr>
+              <tr><td>New opcodes</td><td>0xb2 CHECKSEQUENCEVERIFY · 0xc0 CHECKSETSIG · 0xc1 CHECKSETDORMANT · 0xc2 CHECKPQSIG</td></tr>
+              <tr><td>Owner signatures</td><td>SLH-DSA (SHA2-128s)</td></tr>
+              <tr><td>YED holder signatures</td><td>Falcon-512</td></tr>
+              <tr><td>rpcversion</td><td>8</td></tr>
+              <tr><td>Proof of work</td><td>Equihash (192,7)</td></tr>
+            </tbody>
+          </table></div>
+        </details>
+        <ol class="steps">
+          <li><div><b>Build the matching revision</b><p>The revision appears here when a Kogany build passes the testnet sync gate. Until then, use <code>ycashd</code> 6.22.x.</p></div></li>
+          <li><div><b>Bootstrap from a snapshot (optional)</b><p>Restore a verified testnet snapshot from the <a href="/snapshots/">snapshots page</a>, or sync from genesis to stay fully self-validating.</p></div></li>
+          <li><div><b>Save the configuration and start</b><p>Save the configuration below, start the node, and check <code>getblockchaininfo</code> for the testnet profile and an advancing tip.</p></div></li>
+        </ol>
+        <div class="code">
+          <div class="code-bar"><span class="file">kogany-testnet.toml · placeholder</span><span class="spacer"></span><button class="copy-btn" type="button" data-copy-target="cfg">Copy</button></div>
+<pre id="cfg"><span class="k">[network]</span>
+network = <span class="s">"Testnet"</span>          <span class="c"># Ycash testnet, profile below</span>
+testnet_profile = <span class="s">"yb-fast"</span>   <span class="c"># or "yb-slow"</span>
+listen_addr = <span class="s">"0.0.0.0:&lt;port&gt;"</span>
+initial_testnet_peers = [<span class="s">"&lt;published with the launch&gt;"</span>]
+
+<span class="k">[rpc]</span>
+listen_addr = <span class="s">"127.0.0.1:&lt;port&gt;"</span></pre>
+        </div>
+        <p class="muted small">The final key names and ports are published with the first Kogany testnet build.</p>
+      </div>
+    </div>
   </div>
 </div>

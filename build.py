@@ -30,14 +30,19 @@ NAME = "Kogany"
 REPO = "https://github.com/boyfromcave/kogany"
 
 NAV = [
-    ("/vault/", "Vault upgrade", "Status"),
+    ("/vault/", "Vault", "Dashboard"),
     ("/download/", "Download", None),
-    ("/testnet/", "Testnet", None),
     ("/snapshots/", "Snapshots", None),
     ("/announcements/", "Announcements", None),
     ("/engineering/", "Engineering", None),
     ("/about/", "About", None),
 ]
+MONTHS = "January February March April May June July August September October November December".split()
+
+
+def long_date(iso):
+    y, m, d = iso.split("-")
+    return f"{int(d)} {MONTHS[int(m) - 1]} {y}"
 
 META_RE = re.compile(r"\A\s*<!--(.*?)-->", re.S)
 
@@ -75,9 +80,9 @@ def layout(meta, body, url):
     nav = []
     for href, label, tag in NAV:
         current = ' aria-current="page"' if url.startswith(href) else ""
-        cls = ' class="nav-status"' if tag else ""
-        extra = f' <span class="nav-tag">{tag}</span>' if tag else ""
-        nav.append(f'<a href="{href}"{cls}{current}>{label}{extra}</a>')
+        cls = ' class="nav-dash"' if tag else ""
+        extra = f'<span class="nav-tag">{tag}</span>' if tag else ""
+        nav.append(f'<a href="{href}"{cls}{current}><span>{label}</span>{extra}</a>')
     return f"""<!doctype html>
 <html lang="en">
 <head>
@@ -96,7 +101,7 @@ def layout(meta, body, url):
 <link rel="alternate" type="application/atom+xml" title="{NAME} announcements" href="/announcements/atom.xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@1,9..144,600&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&display=swap">
 <link rel="stylesheet" href="/assets/site.css">
 </head>
 <body>
@@ -115,13 +120,15 @@ def layout(meta, body, url):
 </main>
 <footer class="site-footer">
   <div class="container">
-    <a href="{REPO}" rel="noopener"><svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38v-1.49c-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48v2.2c0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg><code>boyfromcave/kogany</code></a>
-    <a href="https://y.cash/" rel="noopener"><img src="/assets/ycash-logo.svg" alt="" width="16" height="16"><span>A Ycash node</span></a>
-    <span class="footer-note">Kogany is a fork of <a href="https://github.com/zakura-core/zakura" rel="noopener">Zakura</a>. Testnet coins have no value.</span>
-    <button class="theme-toggle" type="button" aria-label="Switch theme" data-theme-toggle hidden>
-      <svg class="moon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
-      <svg class="sun" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
-    </button>
+    <a href="{REPO}" rel="noopener"><svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38v-1.49c-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48v2.2c0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg><span>boyfromcave/kogany</span></a>
+    <a href="https://y.cash/" rel="noopener"><img src="/assets/ycash-logo.svg" alt="" width="16" height="16"><span>ycash</span></a>
+    <div class="trailer">
+      {mark("colophon")}
+      <button class="theme-toggle" type="button" aria-label="Switch theme" data-theme-toggle hidden>
+        <svg class="moon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        <svg class="sun" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+    </div>
   </div>
 </footer>
 </body>
@@ -134,7 +141,7 @@ def post_list(section, pages):
                    key=lambda p: p["meta"].get("date", ""), reverse=True)
     out = ['<ol class="post-list">']
     for p in items:
-        out.append(f'<li><time datetime="{p["meta"]["date"]}">{p["meta"]["date"]}</time>'
+        out.append(f'<li><time datetime="{p["meta"]["date"]}">{long_date(p["meta"]["date"])}</time>'
                    f'<a href="{p["url"]}">{html.escape(p["meta"]["title"])}</a>'
                    f'<p>{html.escape(p["meta"]["description"])}</p></li>')
     out.append("</ol>")
@@ -184,9 +191,14 @@ def main():
                     (OUT / "announcements" / "atom.xml").write_text(atom(items), encoding="utf-8")
         if p["url"].count("/") > 2 and "date" in p["meta"]:
             back = "/" + p["url"].split("/")[1] + "/"
-            body = (f'<article class="container post prose"><p class="eyebrow"><a href="{back}">'
-                    f'{back.strip("/").capitalize()}</a> · <time>{p["meta"]["date"]}</time></p>'
-                    f'<h1>{html.escape(p["meta"]["title"])}</h1>\n{body}\n</article>')
+            banner = ""
+            if "banner" in p["meta"]:
+                big, _, small = p["meta"]["banner"].partition("|")
+                banner = (f'<div class="banner" aria-hidden="true">{mark("banner-mark")}'
+                          f'<div class="v">{html.escape(big.strip())}<small>{html.escape(small.strip())}</small></div></div>')
+            body = (f'<div class="container"><article class="post prose"><p class="eyebrow">'
+                    f'<time datetime="{p["meta"]["date"]}">{long_date(p["meta"]["date"])}</time></p>'
+                    f'<h1>{html.escape(p["meta"]["title"])}</h1>\n{banner}{body}\n</article></div>')
         dest = OUT / p["url"].lstrip("/") / "index.html"
         dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_text(layout(p["meta"], body, p["url"]), encoding="utf-8")

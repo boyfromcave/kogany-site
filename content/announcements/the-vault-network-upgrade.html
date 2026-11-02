@@ -1,0 +1,16 @@
+<!--
+title: The vault network upgrade
+description: Ycash Yellowback (YED) will be built on a general-purpose vault primitive, activated by a Ycash network upgrade and checked by every full node.
+date: 2026-10-06
+banner: 6d5b7a31 | vault upgrade
+-->
+<p>Ycash Yellowback (YED), a decentralized dollar backed by YEC, will be built on a new <strong>network upgrade</strong>, not a soft fork. The upgrade adds a general-purpose primitive: <strong>vaults</strong>, YEC locked under rules every full node enforces, not only miners.</p>
+<h2>Why a network upgrade</h2>
+<p>A generic lock-and-release primitive can't be built from Ycash's existing opcodes, and its rules have to be checked by every node to be trusted. So the upgrade gets its own branch ID, <code>0x6d5b7a31</code>, and activates at a block height, the same way Ycash and Zcash have always upgraded.</p>
+<h2>What's in it</h2>
+<ul>
+  <li><strong>The primitive:</strong> vault templates, bonded signer sets with seats, maturity and dormancy, and owner recovery when a set goes quiet.</li>
+  <li><strong>One rule module, <code>YED\0</code>:</strong> minting, redemption, claims on undercollateralized positions, attested prices and consensus fee rules.</li>
+  <li><strong>A bridge template</strong> for wrapped YEC on Ethereum. Ycash consensus never reads Ethereum.</li>
+</ul>
+<p><strong>No activation height is set</strong> on mainnet or the public testnets. The heights and the founding attestor set come with the release that passes the upgrade's gates.</p>

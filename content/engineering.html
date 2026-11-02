@@ -1,14 +1,100 @@
 <!--
 title: Engineering
-description: Technical notes from porting the Ycash vault upgrade to a Rust node.
+description: The major engineering efforts inside Kogany — what each one changes, why it matters, and where it stands.
 -->
-<header class="page-head">
-  <div class="container">
-    <p class="eyebrow">Notes</p>
-    <h1>Engineering</h1>
-    <p class="lede">What we learn moving consensus rules between two very different codebases.</p>
-  </div>
-</header>
 <div class="container">
-{{ engineering }}
+  <header class="page-head">
+    <h1>Engineering</h1>
+    <p class="lede">The major engineering efforts inside Kogany: what each one changes, why it matters, and where it stands.</p>
+  </header>
+  <ol class="eng">
+    <li>
+      <div>
+        <div class="n">01</div>
+        <span class="label">Consensus · in progress</span>
+        <h2><a href="/engineering/three-lines-one-state-hash/">Three Node Lines, One State Hash</a></h2>
+        <p>Two C++ nodes and one Rust node must compute the same vault and Yellowback state at every block. The Rust traps that threaten it are map order, overflow, concurrency and checkpoints, and each has a rule.</p>
+        <a class="more" href="/engineering/three-lines-one-state-hash/">Read about three node lines, one state hash</a>
+      </div>
+      <figure class="illus" aria-hidden="true"><svg viewBox="0 0 640 336">
+        <text x="40" y="44" font-family="IBM Plex Mono, monospace" font-size="11" letter-spacing="1.5" fill="#9a6a12">THREE LINES · ONE STATEHASH</text>
+        <circle cx="600" cy="20" r="60" fill="#f7e3b4" opacity=".7"/><circle cx="20" cy="330" r="55" fill="#f7e3b4" opacity=".7"/>
+        <circle cx="470" cy="168" r="100" fill="#f7e3b4"/>
+        <g font-family="Source Serif 4, Georgia, serif" font-size="17" fill="#f4efe4" text-anchor="middle">
+          <rect x="60" y="70" width="150" height="54" rx="6" fill="#1b1a1e"/><text x="135" y="103">ycashd 4.5</text>
+          <rect x="60" y="141" width="150" height="54" rx="6" fill="#1b1a1e"/><text x="135" y="174">ycashd 6.20</text>
+          <rect x="60" y="212" width="150" height="54" rx="6" fill="#1b1a1e"/><text x="135" y="245">kogany</text>
+        </g>
+        <g fill="none" stroke="#c8901e" stroke-width="2"><path d="M212 97 C320 97 330 168 410 168"/><path d="M212 168 H410"/><path d="M212 239 C320 239 330 168 410 168"/></g>
+        <text x="470" y="160" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="15" fill="#1b1a1e">statehash</text>
+        <text x="470" y="186" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="22" fill="#1b1a1e">=</text>
+        <text x="320" y="312" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" letter-spacing="1.5" fill="#9a6a12">SAME BLOCKS · SAME BYTES · EVERY 100 BLOCKS</text>
+      </svg></figure>
+    </li>
+    <li>
+      <div>
+        <div class="n">02</div>
+        <span class="label">Consensus · planned</span>
+        <h2><a href="/engineering/vault-acts-in-order/">Applying Vault Acts in Order on a Concurrent Verifier</a></h2>
+        <p>Zakura verifies the transactions in a block in parallel. Vault acts read and change shared state, so Kogany runs them in sequence during contextual validation, against a snapshot of the parent block's state.</p>
+        <a class="more" href="/engineering/vault-acts-in-order/">Read about applying vault acts in order</a>
+      </div>
+      <figure class="illus" aria-hidden="true"><svg viewBox="0 0 640 336">
+        <text x="40" y="44" font-family="IBM Plex Mono, monospace" font-size="11" letter-spacing="1.5" fill="#9a6a12">PARALLEL CHECKS · SEQUENTIAL ACTS</text>
+        <circle cx="600" cy="20" r="60" fill="#f7e3b4" opacity=".7"/>
+        <circle cx="440" cy="190" r="95" fill="#f7e3b4"/>
+        <g fill="#1b1a1e"><rect x="60" y="90" width="44" height="30" rx="4"/><rect x="60" y="140" width="44" height="30" rx="4"/><rect x="60" y="190" width="44" height="30" rx="4"/><rect x="60" y="240" width="44" height="30" rx="4"/></g>
+        <g fill="none" stroke="#c8901e" stroke-width="2"><path d="M110 105 H190"/><path d="M110 155 H190"/><path d="M110 205 H190"/><path d="M110 255 H190"/></g>
+        <text x="200" y="185" font-family="IBM Plex Mono, monospace" font-size="12" fill="#1b1a1e">scripts ✓</text>
+        <g fill="#1b1a1e"><rect x="370" y="120" width="140" height="30" rx="15"/><rect x="370" y="175" width="140" height="30" rx="15"/><rect x="370" y="230" width="140" height="30" rx="15"/></g>
+        <g font-family="IBM Plex Mono, monospace" font-size="12" fill="#f4efe4" text-anchor="middle"><text x="440" y="140">act 1</text><text x="440" y="195">act 2</text><text x="440" y="250">act 3</text></g>
+        <g stroke="#1b1a1e" stroke-width="2"><path d="M440 150 V175"/><path d="M440 205 V230"/></g>
+        <path d="M280 180 C320 180 330 135 368 135" stroke="#c8901e" stroke-width="2" fill="none"/>
+        <text x="440" y="100" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" letter-spacing="1.2" fill="#9a6a12">PARENT SNAPSHOT</text>
+      </svg></figure>
+    </li>
+    <li>
+      <div>
+        <div class="n">03</div>
+        <span class="label">Cryptography · in review</span>
+        <h2><a href="/announcements/post-quantum-vaults/">Post-Quantum Signatures in Script</a></h2>
+        <p>One opcode, <code>OP_CHECKPQSIG</code>, verifies SLH-DSA for vault owners and Falcon-512 for YED holders. Large keys are pushed in canonical 520-byte chunks, and verification uses the same vendored C code as the C++ nodes.</p>
+        <a class="more" href="/announcements/post-quantum-vaults/">Read about post-quantum signatures</a>
+      </div>
+      <figure class="illus dark" aria-hidden="true"><svg viewBox="0 0 640 336">
+        <defs><radialGradient id="g3" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#f2b84b" stop-opacity=".45"/><stop offset="1" stop-color="#f2b84b" stop-opacity="0"/></radialGradient></defs>
+        <circle cx="320" cy="168" r="170" fill="url(#g3)"/>
+        <g stroke="#f2b84b" stroke-opacity=".35">
+          <path d="M0 120 H200"/><path d="M0 150 H210"/><path d="M0 180 H210"/><path d="M0 210 H200"/>
+          <path d="M440 120 H640"/><path d="M430 150 H640"/><path d="M430 180 H640"/><path d="M440 210 H640"/>
+        </g>
+        <g transform="translate(240 88) scale(2.5)" color="#f2b84b">
+          <g fill="none" stroke="currentColor" stroke-linecap="round"><circle cx="32" cy="32" r="28" stroke-width="5"/><circle cx="32" cy="32" r="17" stroke-width="3"/><path d="M32 32V19M32 32l11.3 6.5M32 32l-11.3 6.5" stroke-width="4"/></g>
+          <circle cx="32" cy="32" r="5" fill="currentColor"/>
+        </g>
+        <text x="40" y="300" font-family="IBM Plex Mono, monospace" font-size="34" font-weight="600" fill="#f0ebe0">0xc2</text>
+      </svg></figure>
+    </li>
+    <li>
+      <div>
+        <div class="n">04</div>
+        <span class="label">Wallet · planned</span>
+        <h2><a href="/yewd/">A Wallet Beside the Node</a></h2>
+        <p><code>ycashd</code> keeps its wallet inside the node; Kogany doesn't. <code>yewd</code> serves the same wallet RPCs from the YEW wallet core, and waits until it has caught up with the node before it answers.</p>
+        <a class="more" href="/yewd/">Read about yewd</a>
+      </div>
+      <figure class="illus" aria-hidden="true"><svg viewBox="0 0 640 336">
+        <text x="40" y="44" font-family="IBM Plex Mono, monospace" font-size="11" letter-spacing="1.5" fill="#9a6a12">NODE · SIDECAR · CLIENTS</text>
+        <circle cx="600" cy="320" r="60" fill="#f7e3b4" opacity=".7"/>
+        <circle cx="320" cy="170" r="90" fill="#f7e3b4"/>
+        <g fill="#1b1a1e"><rect x="60" y="130" width="130" height="80" rx="6"/><rect x="255" y="130" width="130" height="80" rx="6"/></g>
+        <g font-family="Source Serif 4, Georgia, serif" font-size="18" fill="#f4efe4" text-anchor="middle"><text x="125" y="176">kogany</text><text x="320" y="176">yewd</text></g>
+        <g fill="none" stroke="#c8901e" stroke-width="2"><path d="M192 160 H253"/><path d="M253 180 H192" stroke-dasharray="4 4"/><path d="M387 170 C440 170 440 100 480 100"/><path d="M387 170 H480"/><path d="M387 170 C440 170 440 240 480 240"/></g>
+        <g fill="none" stroke="#1b1a1e" stroke-width="1.5"><rect x="482" y="86" width="110" height="28" rx="14"/><rect x="482" y="156" width="110" height="28" rx="14"/><rect x="482" y="226" width="110" height="28" rx="14"/></g>
+        <g font-family="IBM Plex Mono, monospace" font-size="11" fill="#1b1a1e" text-anchor="middle"><text x="537" y="104">YecWallet</text><text x="537" y="174">attestor</text><text x="537" y="244">x402</text></g>
+        <text x="222" y="150" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="#9a6a12">RPC</text>
+        <text x="320" y="300" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" letter-spacing="1.5" fill="#9a6a12">THE SAME WALLET RPCS AS YCASHD</text>
+      </svg></figure>
+    </li>
+  </ol>
 </div>

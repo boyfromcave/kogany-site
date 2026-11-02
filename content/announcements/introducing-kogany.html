@@ -2,10 +2,17 @@
 title: Introducing Kogany
 description: Ycash gets a third node line: a Rust full node built on Zakura, carrying the vault upgrade.
 date: 2026-11-01
+banner: kogany | third node line
 -->
-<p>Today we're starting <strong>Kogany</strong>, a Ycash full node written in Rust. It's our fork of <a href="https://github.com/zakura-core/zakura" rel="noopener">Zakura</a>, the consensus-compatible Zcash node from the Zebra lineage. We forked from Zakura's main branch at commit <code>2b062412c5</code>, just after its 1.7.0 release.</p>
+<p>Today we're starting <strong>Kogany</strong>, a Ycash full node written in Rust. It's our fork of <a href="https://github.com/zakura-core/zakura" rel="noopener">Zakura</a>, the consensus-compatible Zcash node from the Zebra lineage, taken at commit <code>2b062412c5</code> on Zakura's main branch, just after its 1.7.0 release.</p>
+<p><strong>Nothing here is a release yet.</strong> Kogany becomes a release line only after the full three-node test at the end of wave W9, by explicit sign-off of the Yellowback lead architect.</p>
 <h2>Why a third node</h2>
 <p>The vault upgrade already runs on two C++ node lines, <code>ycashd</code> 4.5 and 6.20. Both come from the same family of code, though, so a mistake in shared logic can hide in both. Kogany is an independent implementation in a different language and architecture. Running all three side by side and requiring the same vault and Yellowback state hash at every block is the strongest consensus test we can build.</p>
 <h2>The plan</h2>
-<p>The work runs in ten waves. First Kogany learns to be a Ycash node: branch IDs, Equihash (192,7), the Development Fund and checkpoints. Then come the vault epoch, script and post-quantum verification, the vault primitive, the YED module, mempool policy, the read RPCs and mining. The last wave runs the full Yellowback suite against all three nodes on one devnet. Wallet RPCs come from <a href="/yewd/"><code>yewd</code></a>, a daemon built on the YEW wallet core.</p>
-<p>Kogany is a release line only after that last wave, and only by explicit sign-off. Until then, nothing here is a release. Follow progress on the <a href="/vault/">vault upgrade page</a>.</p>
+<ul>
+  <li><strong>W0–W1:</strong> scaffolding, then Ycash on Zakura: branch IDs, Equihash (192,7), the Development Fund, checkpoints, P2P, a full sync beside <code>ycashd</code>.</li>
+  <li><strong>W2–W4:</strong> the Vault epoch, script and post-quantum verification, and the vault primitive with its set state and reorg handling.</li>
+  <li><strong>W5–W8:</strong> the YED rule module, relay policy, the read RPCs (<code>rpcversion</code> 8) and mining.</li>
+  <li><strong>W9:</strong> the whole Yellowback suite against all three nodes on one devnet, with the wallet served by <a href="/yewd/"><code>yewd</code></a>.</li>
+</ul>
+<p>Follow progress on the <a href="/vault/">vault dashboard</a>.</p>

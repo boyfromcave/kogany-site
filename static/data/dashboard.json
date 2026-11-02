@@ -1,0 +1,14 @@
+{
+  "status": "configured",
+  "generated": null,
+  "networks": {
+    "yb-fast": {"network_label": "yb-fast", "testnet_state": "Pending", "testnet_height": "Height to be set",
+                "height": null, "best_hash": null, "header_age": null, "median_interval": null,
+                "vaults": null, "yed_supply": null, "seats": "7", "seats_note": "7 house seats",
+                "activation": null, "faucet_url": null, "viz_url": null, "blocks": []},
+    "yb-slow": {"network_label": "yb-slow", "testnet_state": "Pending", "testnet_height": "Height to be set",
+                "height": null, "best_hash": null, "header_age": null, "median_interval": null,
+                "vaults": null, "yed_supply": null, "seats": "3", "seats_note": "3 house seats, 4 invited later",
+                "activation": null, "faucet_url": null, "viz_url": null, "blocks": []}
+  }
+}

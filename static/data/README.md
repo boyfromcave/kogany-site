@@ -1,16 +1,18 @@
 # static/data — the status feeds the pages read
 
-`testnet.json` is the testnet page's feed (`data-live` in `content/testnet.html`). The committed file
-is the build-time configuration. A collector on the testnet cluster (the `status` service in
-ycash-infra's `charts/ycash-testnet`) will replace it with live readings.
+`dashboard.json` feeds the vault dashboard (`data-live` in `content/vault.html`). The committed file
+is the build-time placeholder. The testnet status service (ycash-infra `charts/ycash-testnet`,
+`status`) will publish the live one at the same path.
 
-| Field | Meaning |
-|---|---|
-| `status` | `live` only when every value was just read from a node; anything else keeps the page's warning up |
-| `generated` | when the values were read (ISO 8601) |
-| `networks[].id` | `yb-fast` or `yb-slow`, matching `data-network` on the page |
-| `state` | `up`, `degraded` or `not deployed` |
-| `height`, `vault` | tip height and whether Vault is active at the next block; `null` shows "unavailable" |
-| `faucet_url` | set only once the network's faucet is live and checked; the page shows its button then |
+```json
+{ "status": "live | configured | stale",
+  "generated": "ISO 8601 time the values were read",
+  "networks": { "yb-fast": { ... }, "yb-slow": { ... } } }
+```
 
-The page never infers a value it isn't given: missing values show "unavailable".
+Per network: `testnet_state`, `testnet_height` (rollout stage), `height`, `best_hash`,
+`header_age`, `median_interval`, `interval_note`, `vaults`, `yed_supply`, `seats`, `seats_note`,
+`activation`, `faucet_url`, `viz_url`, and `blocks` (newest first: `{height, hash, time}`).
+
+Rules the page follows: only `"status": "live"` clears the warning and enables the faucet and
+visualizer buttons; a `null` value leaves the build-time placeholder in place; nothing is inferred.

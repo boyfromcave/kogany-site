@@ -1,24 +1,36 @@
 <!--
 title: About
-description: Who builds Kogany, how it relates to Zakura and Ycash, and the rules it follows.
+description: Kogany is built by the Ycash developers as the third node line for the Ycash vault upgrade.
 -->
-<header class="page-head">
-  <div class="container">
-    <p class="eyebrow">Project</p>
-    <h1>About Kogany</h1>
+<div class="container">
+  <header class="page-head">
+    <h1>About</h1>
+    <p class="lede">Kogany is built by the Ycash developers, under the direction of the Yellowback lead architect. It is the third node line for the Ycash vault upgrade, beside <code>ycashd</code> 4.5 and 6.20, and the Rust home of Ycash Yellowback (YED).</p>
+  </header>
+  <section class="team">
+    <h2>Team</h2>
+    <article class="member"><div class="portrait"><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="23" r="12" fill="currentColor"/><path d="M8 62c2-14 12-22 24-22s22 8 24 22z" fill="currentColor"/></svg></div><div>
+      <h3>The Yellowback lead architect</h3><span class="label">Maintainer</span>
+      <p>Sets the vault upgrade's design and decides its open questions. Signs off each node line as a release line once it passes the gates.</p>
+      <p class="label">Profile to come</p></div></article>
+    <article class="member"><div class="portrait"><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="23" r="12" fill="currentColor"/><path d="M8 62c2-14 12-22 24-22s22 8 24 22z" fill="currentColor"/></svg></div><div>
+      <h3>Node engineering</h3><span class="label">Kogany · ycashd</span>
+      <p>The three node lines: the vault primitive, the YED module, post-quantum verification and the cross-line test that holds them to one state hash.</p>
+      <p class="label">Profiles to come</p></div></article>
+    <article class="member"><div class="portrait"><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="23" r="12" fill="currentColor"/><path d="M8 62c2-14 12-22 24-22s22 8 24 22z" fill="currentColor"/></svg></div><div>
+      <h3>Wallets and infrastructure</h3><span class="label">YEW · yewd · testnets</span>
+      <p>The YEW wallet core and its app, web and daemon front ends; lightwalletd; and the public testnets, faucet, snapshots and visualizer.</p>
+      <p class="label">Profiles to come</p></div></article>
+  </section>
+  <div class="column prose section-end">
+    <h2>Relationship to Zakura</h2>
+    <p>Kogany is a fork of <a href="https://github.com/zakura-core/zakura" rel="noopener">Zakura</a>, licensed as Zakura is. We keep its architecture, its upstream tests and its copyright notices. A build without the <code>ycash</code> feature still runs Zakura's own networks, which lets us show that the dormant vault code changes nothing there. Kogany is an independent project and is not endorsed by the Zakura team.</p>
+    <h2>Ground rules</h2>
+    <ul>
+      <li><strong>Consensus changes are reviewed:</strong> two people independent of the author review every consensus-critical line.</li>
+      <li><strong>One change on every line:</strong> a shared vault or Yellowback rule change lands on all node lines together.</li>
+      <li><strong>Nothing is trusted from an artifact:</strong> vault and Yellowback state are always computed, never imported.</li>
+      <li><strong>Upstream automation stays off</strong> until each workflow has been reviewed for the fork.</li>
+    </ul>
   </div>
-</header>
-<div class="container prose section">
-  <p>Kogany is built by the Ycash developers, under the direction of the Yellowback lead architect. It is part of the work to bring a decentralized digital dollar, Ycash Yellowback (YED), to Ycash through the vault network upgrade.</p>
-  <h2>Relationship to Zakura</h2>
-  <p>Kogany is a fork of <a href="https://github.com/zakura-core/zakura" rel="noopener">Zakura</a>, dual-licensed under MIT and Apache 2.0 as Zakura is. We keep Zakura's architecture, its upstream tests and its copyright notices. Zakura's networks still work in a build without the <code>ycash</code> feature, which lets us show that the dormant vault code changes nothing on Zcash. Kogany is an independent project and is not endorsed by the Zakura team.</p>
-  <h2>Ground rules</h2>
-  <ul>
-    <li><strong>Consensus changes are reviewed.</strong> Every consensus-critical line is reviewed by two people independent of its author.</li>
-    <li><strong>One change on every line.</strong> A shared vault or Yellowback rule change lands on all node lines together.</li>
-    <li><strong>Nothing is trusted from an artifact.</strong> Vault and Yellowback state are always computed, never imported.</li>
-    <li><strong>Upstream automation stays off</strong> until each workflow has been reviewed for the fork.</li>
-  </ul>
-  <h2>Source</h2>
-  <p>Code: <a href="https://github.com/boyfromcave/kogany" rel="noopener">github.com/boyfromcave/kogany</a>, integration branch <code>upgrade/vault</code>.</p>
 </div>
