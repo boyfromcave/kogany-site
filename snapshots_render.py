@@ -1,9 +1,9 @@
 """The snapshots page, rendered at build time from the published manifests.
 
 The bucket cannot be listed publicly, so snapshots.json names the candidate heights; each one is
-shown only once its manifest is published. A manifest is used only if its format, network and
-height match where it was found (ycash-infra bundles/state FORMAT.md). Nothing is inferred: a
-missing value renders as a placeholder.
+shown only once its manifest is published. A manifest is used only if its format, network, height
+and storage mode match where it was found (ycash-infra bundles/state/FORMAT.md). Nothing is
+inferred: a missing value renders as a placeholder.
 
 SNAPSHOTS_BASE overrides the base URL (or names a local directory with the same layout, for
 previewing); SNAPSHOTS_OFFLINE=1 skips the network and renders the placeholders.
@@ -18,32 +18,34 @@ import urllib.request
 from email.utils import parsedate_to_datetime
 from pathlib import Path
 
-FORMATS = {"kogany": "kogany-state/1", "ycashd": "ycash-state/2"}
+RETENTION = 34560   # the infrastructure's pruned bundles (FORMAT.md kogany-state/2, decision 8)
 
 
 def fetch_json(url):
-    """(document, published date or None), or (None, None) if it is not there."""
+    """(document, upload date or None), or (None, None) if it is not there."""
     if not url.startswith(("http://", "https://")):
         p = Path(url)
-        if not p.is_file():
-            return None, None
-        return json.loads(p.read_text()), None
+        return (json.loads(p.read_text()), None) if p.is_file() else (None, None)
     try:
-        with urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "kogany-site-build"}), timeout=15) as r:
+        req = urllib.request.Request(url, headers={"User-Agent": "kogany-site-build"})
+        with urllib.request.urlopen(req, timeout=15) as r:
             lm = r.headers.get("Last-Modified")
-            date = parsedate_to_datetime(lm).date().isoformat() if lm else None
-            return json.loads(r.read()), date
+            return json.loads(r.read()), (parsedate_to_datetime(lm).date().isoformat() if lm else None)
     except (urllib.error.URLError, TimeoutError, ValueError):
         return None, None
 
 
 def valid(fam, m, height=None):
-    ok = (isinstance(m, dict) and m.get("format") == FORMATS[fam] and m.get("network") == "main"
+    if m is None:
+        return False
+    mode = m.get("storage_mode") or "archive"
+    ok = (isinstance(m, dict) and m.get("format") in fam["formats"] and m.get("network") == "main"
           and isinstance(m.get("height"), int) and isinstance(m.get("tarball"), str)
           and isinstance(m.get("sha256"), str) and len(m["sha256"]) == 64
-          and (height is None or m["height"] == height))
-    if not ok and m is not None:
-        print(f"snapshots: ignoring a {fam} manifest that does not match its place", file=sys.stderr)
+          and (height is None or m["height"] == height)
+          and (fam["storage_mode"] is None or mode == fam["storage_mode"]))
+    if not ok:
+        print(f"snapshots: ignoring a {fam['id']} manifest that does not match its place", file=sys.stderr)
     return ok
 
 
@@ -52,54 +54,67 @@ def collect(cfg):
     out = {"base": cfg["base"].rstrip("/"), "families": {}}
     offline = os.environ.get("SNAPSHOTS_OFFLINE") == "1"
     for fam in cfg["families"]:
-        fid = fam["id"]
         entry = {"latest": None, "all": []}
         if not offline:
             m, date = fetch_json(f"{base}/{fam['latest']}")
-            if valid(fid, m):
+            if valid(fam, m):
                 entry["latest"] = dict(m, published=date)
             for h in cfg["heights"]:
-                if h.get("family", fid) != fid:
+                if fam["id"] not in h.get("families", [fam["id"]]):
                     continue
                 m, date = fetch_json(f"{base}/{fam['dir']}/{h['height']}/manifest.json")
-                if valid(fid, m, h["height"]):
+                if valid(fam, m, h["height"]):
                     entry["all"].append(dict(m, published=date, label=h["label"]))
             if entry["latest"] is None and entry["all"]:
-                entry["latest"] = max(entry["all"], key=lambda e: e["height"])
-        out["families"][fid] = entry
+                entry["latest"] = max(entry["all"], key=lambda x: x["height"])
+        out["families"][fam["id"]] = entry
     return out
 
 
 def gib(n):
-    return f"{n / 2**30:.1f} GiB" if isinstance(n, int) else "—"
+    return f"{n / 2**30:.1f} GiB" if isinstance(n, int) else None
 
 
 def e(v):
     return html.escape(str(v)) if v not in (None, "") else "—"
 
 
-def card(fam, m, recommended):
+def built_by(m):
+    v = m.get("version")
+    return v.split(",")[0] if isinstance(v, str) else v
+
+
+def retention(m):
+    low = m.get("lowest_retained_height")
+    if (m.get("storage_mode") or "archive") == "archive":
+        return "Full history"
+    if isinstance(low, int):
+        return f"transactions from block {low:,}" if low else "every transaction so far"
+    return None
+
+
+def card(fam, m, base):
     fid = fam["id"]
     tag = f' <span class="tag gold">{e(fam["tag"])}</span>' if fam.get("tag") else ""
     if m:
         height = f"Block {m['height']:,}"
-        rows = [("Block hash", m["blockhash"][:12] + "…" + m["blockhash"][-8:]),
-                ("Published", m.get("published")), ("Size", gib(m.get("bytes"))),
-                *([("Block time", m["created"][:10])] if m.get("created") else []),
-                ("Format", m.get("state_format") and f"state {m['state_format']}" or m.get("format")),
-                ("Generated by", m.get("version"))]
-        if fid == "kogany":
-            rows.append(("Matches ycashd", "yes, same block" if m.get("agrees_with") else "not cross-checked"))
-            if m.get("non_finalized_blocks"):
-                rows.append(("Unfinalized", f"{m['non_finalized_blocks']:,} blocks"))
-        url = f"{{base}}/{fam['dir']}/{m['height']}/{m['tarball']}"
-        sha, button = m["sha256"], f'<a class="button outline" data-k="{fid}.download" href="{url}">Direct download</a>'
+        rows = [("Published", m.get("published")), ("Size", gib(m.get("bytes"))),
+                ("DB format", m.get("state_format") and f"v{m['state_format']}"),
+                ("Retention", retention(m)), ("Generated by", built_by(m))]
+        if m.get("agrees_with"):
+            rows.append(("Matches ycashd", "same block"))
+        url = f"{base}/{fam['dir']}/{m['height']}/{m['tarball']}"
+        sha = m["sha256"]
+        button = f'<a class="button outline" href="{url}">Direct download</a>'
         copy = f'<button class="copy-btn" type="button" data-copy-target="sha-{fid}">Copy</button>'
     else:
-        height, rows = "Block —", [("Published", None), ("Size", None), ("Format", FORMATS[fid]), ("Generated by", None)]
-        sha, button, copy = "published with the snapshot", '<a class="button outline" aria-disabled="true" href="#">Direct download</a>', ""
+        height = "Block —"
+        rows = [("Published", None), ("Size", None), ("DB format", "v30.2.0"),
+                ("Retention", "Full history" if fid == "archive" else f"{RETENTION:,} blocks"), ("Generated by", None)]
+        sha, copy = "not published yet", ""
+        button = '<a class="button outline" aria-disabled="true" href="#">Direct download</a>'
     dl = "".join(f"<dt>{k}</dt><dd>{e(v)}</dd>" for k, v in rows)
-    return (f'<article class="snap{" recommended" if recommended else ""}">'
+    return (f'<article class="snap{" recommended" if fam.get("tag") else ""}">'
             f'<h2>{e(fam["title"])}{tag}</h2><p class="desc">{e(fam["desc"])}</p>'
             f'<p class="height">{height}</p><div class="snap-body"><dl class="meta">{dl}</dl>'
             f'<div class="sha"><span class="label">SHA256 {copy}</span><code id="sha-{fid}">{e(sha)}</code></div></div>'
@@ -112,33 +127,40 @@ def commands(cfg, data, fam):
     fid = fam["id"]
     m = data["families"][fid]["latest"]
     base, key = data["base"], cfg["key"]["public"]
-    now = f"currently {m['height']:,}" if m else "published soon"
-    files = ",".join(fam["files"])
+    now = f"currently {m['height']:,}" if m else "not published yet"
     c = lambda t: f'<span class="c">{t}</span>'
     k = lambda t: f'<span class="k">{t}</span>'
     s = lambda t: f'<span class="s">{t}</span>'
-    lines = [c("# 1 · stop the node first, if it is already running"), "",
-             c("# 2 · the latest manifest names the height; fetch that height's files"),
-             f'B={s(base + "/" + fam["dir"])}',
-             f'H=$({k("curl")} -fsS $B/{s(fam["latest"].split("/", 1)[1])} | {k("jq")} -r .height)   {c("# " + now)}',
-             f'{k("curl")} -fsS --remote-name-all $B/$H/{{{files}}}',
-             f'T=$({k("jq")} -r .tarball manifest.json)',
-             f'<span data-only="aria2">{k("aria2c")} -x16 -s16 --continue=true --checksum=sha-256=$({k("jq")} -r .sha256 manifest.json) $B/$H/$T</span>'
-             f'<span data-only="curl">{k("curl")} -fL -C - -O $B/$H/$T</span>', "",
-             c("# 3 · check the Ycash release key's signature, then every file against it"),
-             f'{k("minisign")} -Vm SHA256SUMS -P {s(key)}',
-             f'{k("shasum")} -a 256 -c SHA256SUMS', ""]
-    if fid == "kogany":
-        lines += [c("# 4 · replace the state cache (macOS: ~/Library/Caches/kogany)"),
+    n = iter(range(1, 10))
+    lines = [c(f"# {next(n)} · stop the node first, if it is already running"), ""]
+    if fid == "pruned":
+        lines += [c(f"# {next(n)} · run in pruned storage mode (one-way; macOS: ~/Library/Preferences/kogany.toml)"),
+                  f'{k("mkdir")} -p ~/.config',
+                  f'{k("cat")} &gt; ~/.config/kogany.toml &lt;&lt;{s(chr(39) + "EOF" + chr(39))}',
+                  "[state.storage_mode.pruned]",
+                  f"tx_retention = {RETENTION}",
+                  "EOF", ""]
+    lines += [c(f"# {next(n)} · the latest manifest names the height; fetch that height's files"),
+              f'B={s(base + "/" + fam["dir"])}',
+              f'H=$({k("curl")} -fsS $B/{s(fam["latest"].split("/", 1)[1])} | {k("jq")} -r .height)   {c("# " + now)}',
+              f'{k("curl")} -fsS --remote-name-all $B/$H/{{{",".join(fam["files"])}}}',
+              f'T=$({k("jq")} -r .tarball manifest.json)',
+              f'<span data-only="aria2">{k("aria2c")} -x16 -s16 --continue=true --checksum=sha-256=$({k("jq")} -r .sha256 manifest.json) $B/$H/$T</span>'
+              f'<span data-only="curl">{k("curl")} -fL -C - -O $B/$H/$T</span>', "",
+              c(f"# {next(n)} · check the Ycash release key's signature, then every file against it"),
+              f'{k("minisign")} -Vm SHA256SUMS -P {s(key)}',
+              f'{k("shasum")} -a 256 -c SHA256SUMS', ""]
+    if fam["node"] == "kogany":
+        lines += [c(f"# {next(n)} · replace the state cache (macOS: ~/Library/Caches/kogany)"),
                   f'{k("rm")} -rf ~/.cache/kogany/state ~/.cache/kogany/non_finalized_state',
                   f'{k("mkdir")} -p ~/.cache/kogany && {k("tar")} -xzf $T -C ~/.cache/kogany',
                   f'{k("cat")} ~/.cache/kogany/state/v30/mainnet/version   {c("# must be 30.2.0")}', "",
-                  c("# 5 · start — the node resumes from block $H, not genesis"),
+                  c(f"# {next(n)} · start — the node resumes from block $H, not genesis"),
                   f'{k("koganyd")} start']
     else:
-        lines += [c("# 4 · restore into a datadir with no blocks/ or chainstate/"),
+        lines += [c(f"# {next(n)} · restore into a datadir with no blocks/ or chainstate/"),
                   f'{k("mkdir")} -p ~/.ycash && {k("tar")} -xzf $T -C ~/.ycash --strip-components=1', "",
-                  c("# 5 · start, then compare block $H with the manifest's blockhash"),
+                  c(f"# {next(n)} · start, then compare block $H with the manifest's blockhash"),
                   f'{k("ycashd")} -datadir=$HOME/.ycash',
                   f'{k("ycash-cli")} getblockhash $H; {k("jq")} -r .blockhash manifest.json']
     return f'<pre id="cmd-{fid}" data-only="{fid}">' + "\n".join(lines) + "</pre>"
@@ -148,43 +170,42 @@ def listing(fam, entries, base):
     rows = []
     for m in sorted(entries, key=lambda x: x["height"], reverse=True):
         url = f"{base}/{fam['dir']}/{m['height']}/manifest.json"
-        meta = " · ".join(x for x in (m.get("published"), gib(m.get("bytes")), m.get("state_format") or m.get("version")) if x)
+        meta = " · ".join(x for x in (m.get("published"), gib(m.get("bytes")),
+                                      m.get("state_format") and f"v{m['state_format']}" or m.get("version")) if x)
         rows.append(f'<div class="snap-row"><div><b>Block {m["height"]:,}</b><span>{e(m["label"])}</span>'
                     f'<span>{e(meta)}</span></div><a class="copy-btn" href="{url}">Manifest</a></div>')
     if not rows:
         rows.append('<div class="snap-row empty"><div><b>Block —</b><span>none published yet</span></div></div>')
-    return f'<div><h3>{e(fam["title"])}</h3>' + "".join(rows) + "</div>"
+    sub = ' <span class="muted small">(datadir)</span>' if fam["node"] == "ycashd" else ""
+    return f'<div><h3>{e(fam["title"])}{sub}</h3>' + "".join(rows) + "</div>"
 
 
 def render(root):
     cfg = json.loads((root / "snapshots.json").read_text())
     data = collect(cfg)
-    fams = cfg["families"]
-    base = data["base"]
-    cards = "".join(card(f, data["families"][f["id"]]["latest"], i == 0) for i, f in enumerate(fams)).replace("{base}", base)
+    fams, base = cfg["families"], data["base"]
+    cards = "".join(card(f, data["families"][f["id"]]["latest"], base) for f in fams if f.get("card"))
     published = any(data["families"][f["id"]]["latest"] for f in fams)
     notice = "" if published else (
         '<div class="notice column"><p><strong>The first mainnet snapshots are being uploaded.</strong> '
         'The cards fill in from the published manifests; until a manifest is published, its values show as a dash.</p></div>')
-    cmds = "".join(commands(cfg, data, f) for f in fams)
-    seg_f = "".join(f'<button type="button" role="tab" aria-selected="{"true" if i == 0 else "false"}" data-cmd-family="{f["id"]}">{e(f["title"])}</button>'
-                    for i, f in enumerate(fams))
-    lists = "".join(listing(f, data["families"][f["id"]]["all"], base) for f in fams)
+    tabs = "".join(f'<button type="button" role="tab" aria-selected="{"true" if i == 0 else "false"}" '
+                   f'data-cmd-family="{f["id"]}">{e(f["title"])}</button>' for i, f in enumerate(fams))
     raw = []
     for f in fams:
-        raw.append(f'<a href="{base}/{f["latest"]}">{e(f["title"])} latest manifest</a>')
         m = data["families"][f["id"]]["latest"]
         if m:
-            raw.append(f'<a href="{base}/{f["dir"]}/{m["height"]}/SHA256SUMS">{e(f["title"])} SHA256SUMS</a>')
+            raw.append(f'<a href="{base}/{f["latest"]}">{e(f["title"].lower())} manifest</a>')
+            raw.append(f'<a href="{base}/{f["dir"]}/{m["height"]}/SHA256SUMS">{e(f["title"].lower())} SHA256SUMS</a>')
     raw.append(f'<a href="{cfg["key"]["file"]}">ycash-release.pub</a>')
-    status = {f["id"]: (data["families"][f["id"]]["latest"] or {}).get("height") for f in fams}
-    print(f"snapshots: latest {status}, listed { {k: len(v['all']) for k, v in data['families'].items()} }")
+    print("snapshots: latest", {f["id"]: (data["families"][f["id"]]["latest"] or {}).get("height") for f in fams},
+          "listed", {k: len(v["all"]) for k, v in data["families"].items()})
     return {
         "{{ snapshot_notice }}": notice,
         "{{ snapshot_cards }}": cards,
-        "{{ snapshot_family_tabs }}": seg_f,
-        "{{ snapshot_commands }}": cmds,
-        "{{ snapshot_lists }}": lists,
+        "{{ snapshot_family_tabs }}": tabs,
+        "{{ snapshot_commands }}": "".join(commands(cfg, data, f) for f in fams),
+        "{{ snapshot_lists }}": "".join(listing(f, data["families"][f["id"]]["all"], base) for f in fams),
         "{{ snapshot_raw }}": " · ".join(raw),
         "{{ key_public }}": cfg["key"]["public"],
         "{{ key_id }}": cfg["key"]["id"],

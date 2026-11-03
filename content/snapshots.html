@@ -17,7 +17,7 @@ description: Ycash mainnet state snapshots for bootstrapping Kogany and ycashd n
   <section class="split" aria-label="Run a node">
     <aside>
       <h2>Run a node</h2>
-      <p>Start a new node, or replace an existing node's state with the latest snapshot. Fetch the latest manifest, then that height's files. Check the <code>SHA256SUMS</code> signature against the Ycash release key, check every file against <code>SHA256SUMS</code>, and unpack the state.</p>
+      <p>Start a new node, or replace an existing node's state with the latest snapshot. Fetch the latest manifest, then that height's files. Check the <code>SHA256SUMS</code> signature against the Ycash release key, check every file against <code>SHA256SUMS</code>, and unpack the state. A pruned snapshot needs the node set to pruned mode first.</p>
       <p>Needs <a href="https://jqlang.github.io/jq/" rel="noopener">jq</a> and <a href="https://jedisct1.github.io/minisign/" rel="noopener">minisign</a>. <a href="https://aria2.github.io/" rel="noopener">aria2</a> downloads in parallel and checks the checksum as it goes; use the curl tab if it isn't installed.</p>
     </aside>
     <div class="main">
@@ -47,7 +47,7 @@ description: Ycash mainnet state snapshots for bootstrapping Kogany and ycashd n
       <div class="panel">
         <h3>What a snapshot asks you to trust</h3>
         <p>A node restored from a snapshot trusts the publisher for the state at that height. Syncing from the network keeps a node fully self-validating. Every snapshot is taken from a stopped node at an exact height and packed reproducibly. Each Kogany manifest records whether the <code>ycashd</code> snapshot at the same height names the same block. A <code>ycashd</code> node can recheck everything with <code>-reindex-chainstate</code>, which rebuilds its state from the snapshot's own blocks without downloading them again.</p>
-        <p>A Kogany snapshot is valid only for its state format (30.2.0). A Kogany build with a different format version ignores it and syncs from genesis.</p>
+        <p>A Kogany snapshot is valid only for its state format (30.2.0). A Kogany build with a different format version ignores it and syncs from genesis. A pruned snapshot restores only into a node configured for pruned mode with <code>tx_retention</code> of at least 10,000 blocks, and the switch is one-way. An archive snapshot restores into either mode.</p>
       </div>
     </div>
   </section>
@@ -55,7 +55,7 @@ description: Ycash mainnet state snapshots for bootstrapping Kogany and ycashd n
   <section class="split" aria-label="All snapshots">
     <aside><h2>All snapshots</h2><p>The tip, plus fixed heights at Ycash's epoch boundaries, where the node lines are compared block for block.</p></aside>
     <div class="main">
-      <div class="all-snaps two">{{ snapshot_lists }}</div>
+      <div class="all-snaps">{{ snapshot_lists }}</div>
       <p class="raw"><b>Raw data</b> — {{ snapshot_raw }}</p>
     </div>
   </section>

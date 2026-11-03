@@ -1,5 +1,5 @@
 {
-  "_comment": "What the snapshots page reads at build time. The bucket cannot be listed publicly, so the candidate heights are listed here; a height whose manifest is not published yet is simply not shown. Layout: ycash-infra bundles/state FORMAT.md (ycash-state/2, kogany-state/1) and bundles/state/mainnet/README.md.",
+  "_comment": "What the snapshots page reads at build time. The bucket cannot be listed publicly, so the candidate heights are listed here; a height whose manifest is not published yet is simply not shown. Layout and fields: ycash-infra bundles/state/FORMAT.md (ycash-state/2, kogany-state/1 and /2) on vaults/kogany-compat, and bundles/state/mainnet/README.md.",
   "base": "https://ycash-contributors-object-store.s3.us-east-1.amazonaws.com/snapshots",
   "key": {
     "id": "02C923A6C593AF18",
@@ -9,31 +9,101 @@
   },
   "families": [
     {
-      "id": "kogany",
-      "title": "Kogany",
-      "tag": "For Kogany nodes",
-      "desc": "The finalized state database of a stopped Kogany node, in Zakura state format 30.2.0. Restore it only into a Kogany build of the same state format.",
+      "id": "pruned",
+      "title": "Pruned",
+      "tag": "For most nodes",
+      "card": true,
+      "desc": "All the state a Kogany node needs to run, with raw transactions kept for the most recent 34,560 blocks (30 days). One-way: a pruned node can't return to archive mode.",
+      "dir": "kogany-main-pruned",
+      "latest": "kogany-main-pruned/latest-30.2.0/manifest.json",
+      "formats": [
+        "kogany-state/2"
+      ],
+      "storage_mode": "pruned",
+      "node": "kogany",
+      "files": [
+        "manifest.json",
+        "SHA256SUMS",
+        "SHA256SUMS.minisig"
+      ]
+    },
+    {
+      "id": "archive",
+      "title": "Archive",
+      "tag": null,
+      "card": true,
+      "desc": "The full Kogany state, including every historic transaction. Restores into an archive or a pruned node.",
       "dir": "kogany-main",
       "latest": "kogany-main/latest-30.2.0/manifest.json",
-      "files": ["manifest.json", "SHA256SUMS", "SHA256SUMS.minisig"]
+      "formats": [
+        "kogany-state/1",
+        "kogany-state/2"
+      ],
+      "storage_mode": "archive",
+      "node": "kogany",
+      "files": [
+        "manifest.json",
+        "SHA256SUMS",
+        "SHA256SUMS.minisig"
+      ]
     },
     {
       "id": "ycashd",
       "title": "ycashd",
       "tag": null,
+      "card": false,
       "desc": "A ycashd 6.22 datadir (blocks, chainstate, vaults), with the node's own statement of the state and its Sapling tree state.",
       "dir": "main",
       "latest": "main/latest/manifest.json",
-      "files": ["manifest.json", "SHA256SUMS", "SHA256SUMS.minisig", "statement-ycash6.json", "treestate.json"]
+      "formats": [
+        "ycash-state/2"
+      ],
+      "storage_mode": null,
+      "node": "ycashd",
+      "files": [
+        "manifest.json",
+        "SHA256SUMS",
+        "SHA256SUMS.minisig",
+        "statement-ycash6.json",
+        "treestate.json"
+      ]
     }
   ],
   "heights": [
-    {"height": 3087341, "family": "kogany", "label": "Tip"},
-    {"height": 3087294, "family": "ycashd", "label": "Tip"},
-    {"height": 3079999, "label": "Proposed shadow-fork height"},
-    {"height": 2800000, "label": "Chain-supply checkpoint"},
-    {"height": 2275000, "label": "End of the Development Fund mandate"},
-    {"height": 1100006, "label": "Canopy activation"},
-    {"height": 570000, "label": "Ycash fork block"}
+    {
+      "height": 3087341,
+      "families": [
+        "pruned",
+        "archive"
+      ],
+      "label": "Tip"
+    },
+    {
+      "height": 3087294,
+      "families": [
+        "ycashd"
+      ],
+      "label": "Tip"
+    },
+    {
+      "height": 3079999,
+      "label": "Proposed shadow-fork height"
+    },
+    {
+      "height": 2800000,
+      "label": "Chain-supply checkpoint"
+    },
+    {
+      "height": 2275000,
+      "label": "End of the Development Fund mandate"
+    },
+    {
+      "height": 1100006,
+      "label": "Canopy activation"
+    },
+    {
+      "height": 570000,
+      "label": "Ycash fork block"
+    }
   ]
 }

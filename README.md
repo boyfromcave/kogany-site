@@ -21,7 +21,7 @@ The build fetches the snapshot manifests, so **rebuild after each snapshot uploa
 | `tools/cutout.py` | cuts the flower out of the source into the transparent web assets: `.venv/bin/python -I tools/cutout.py art/image_5743ea06.jpg static/assets` (Pillow) |
 | `static/data/dashboard.json` | the vault dashboard feed (shape in `static/data/README.md`) |
 | `build.py` | the layout (header, nav, footer) and the generator |
-| `snapshots.json` | the snapshots page's source: bucket base, the Ycash release key, the two families (`kogany-main/`, `main/`) and the candidate heights (the bucket cannot be listed publicly, so heights are named here; one shows once its manifest is published) |
+| `snapshots.json` | the snapshots page's source: bucket base, the Ycash release key, the three families (`kogany-main-pruned/`, `kogany-main/`, `main/`) and the candidate heights (the bucket cannot be listed publicly, so heights are named here; one shows once its manifest is published) |
 | `snapshots_render.py` | renders the snapshot cards, restore commands and list from the published manifests at build time; rejects a manifest whose `format`, `network` or `height` does not match its place. `SNAPSHOTS_OFFLINE=1` skips the network; `SNAPSHOTS_BASE=<dir or URL>` previews from a mirror |
 | `static/keys/ycash-release.pub` | the Ycash release minisign key (id `02C923A6C593AF18`), copied from ycash-infra `keys/` |
 | `docs/zakura-site-survey.md` | what we learned from zakura.com's operations, and what we still need |
