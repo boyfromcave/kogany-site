@@ -46,36 +46,46 @@
     });
   }
 
+  function copyText(src, b) {
+    if (!navigator.clipboard) return;
+    var clone = src.cloneNode(true);
+    $$("[hidden]", clone).forEach(function (n) { n.remove(); });
+    navigator.clipboard.writeText(clone.textContent.replace(/\n{3,}/g, "\n\n").trim()).then(function () {
+      b.textContent = "Copied";
+      setTimeout(function () { b.textContent = "Copy"; }, 1500);
+    });
+  }
+
   function wireCopy() {
     $$("[data-copy-target]").forEach(function (b) {
       b.addEventListener("click", function () {
         var src = document.getElementById(b.getAttribute("data-copy-target"));
-        if (!src || !navigator.clipboard) return;
-        var clone = src.cloneNode(true);
-        $$("[hidden]", clone).forEach(function (n) { n.remove(); });
-        navigator.clipboard.writeText(clone.textContent.replace(/\n{3,}/g, "\n\n").trim()).then(function () {
-          b.textContent = "Copied";
-          setTimeout(function () { b.textContent = "Copy"; }, 1500);
-        });
+        if (src) copyText(src, b);
       });
     });
   }
 
-  // Snapshot commands: one <pre>, variants marked data-only="pruned|aria2|curl".
+  // Snapshot commands: one <pre> per node, tool variants marked data-only="aria2|curl".
   function wireCommands() {
     $$("[data-cmd]").forEach(function (box) {
-      var state = { family: "pruned", tool: "aria2" };
+      var fams = $$("[data-cmd-family]", box).map(function (b) { return b.dataset.cmdFamily; });
+      var state = { family: fams[0], tool: "aria2" };
       function render() {
         $$("[data-cmd-family]", box).forEach(function (b) { b.setAttribute("aria-selected", b.dataset.cmdFamily === state.family); });
         $$("[data-cmd-tool]", box).forEach(function (b) { b.setAttribute("aria-selected", b.dataset.cmdTool === state.tool); });
         $$("[data-only]", box).forEach(function (el) {
           var v = el.dataset.only;
-          el.hidden = (v === "pruned" && state.family !== "pruned") ||
+          el.hidden = (fams.indexOf(v) >= 0 && v !== state.family) ||
                       ((v === "aria2" || v === "curl") && v !== state.tool);
         });
       }
       $$("[data-cmd-family]", box).forEach(function (b) { b.addEventListener("click", function () { state.family = b.dataset.cmdFamily; render(); }); });
       $$("[data-cmd-tool]", box).forEach(function (b) { b.addEventListener("click", function () { state.tool = b.dataset.cmdTool; render(); }); });
+      var copy = $("[data-copy-visible]", box);
+      if (copy) copy.addEventListener("click", function () {
+        var pre = $$("pre", box).filter(function (x) { return !x.hidden; })[0];
+        if (pre) copyText(pre, copy);
+      });
       render();
     });
   }

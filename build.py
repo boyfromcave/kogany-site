@@ -21,6 +21,9 @@ import sys
 from datetime import date
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import snapshots_render  # noqa: E402
+
 ROOT = Path(__file__).resolve().parent
 CONTENT = ROOT / "content"
 STATIC = ROOT / "static"
@@ -181,8 +184,13 @@ def main():
         meta, body = parse(path)
         pages.append({"path": path, "url": url_for(path), "meta": meta, "body": body})
 
+    snap = None
     for p in pages:
         body = p["body"]
+        if "{{ snapshot_" in body:
+            snap = snap or snapshots_render.render(ROOT)
+            for k, v in snap.items():
+                body = body.replace(k, v)
         for section in ("announcements", "engineering"):
             if "{{ " + section + " }}" in body:
                 listing, items = post_list(section, pages)

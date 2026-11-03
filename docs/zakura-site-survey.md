@@ -48,7 +48,7 @@ libraries), so nothing is copied from it: no CSS, text, logo or imagery.
 ## Open items for us
 
 - Decide the signing tool and publish the key with the first release (minisign is what Zakura uses).
-- Define the snapshot manifest schema in `ycash-infra/bundles/state/FORMAT.md` and point `/snapshots/` at it.
+- Snapshots (2026-11-02): `/snapshots/` reads the `ycash-state/2` and `kogany-state/1` manifests (ycash-infra `bundles/state/FORMAT.md`) from the contributors' bucket at build time. Still open: CORS on the bucket for live in-browser refresh; an index file so the heights need not be listed in `snapshots.json`.
 - Have the testnet status service emit `static/data/README.md`'s shape (`status: live` only when fresh).
 - Generate the Markdown twins from the same content.
 - Domain: kogany.net (not yet registered/pointed, as far as this repo knows), hosting (static: GitHub Pages
