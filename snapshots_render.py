@@ -133,10 +133,17 @@ def commands(cfg, data, fam):
     s = lambda t: f'<span class="s">{t}</span>'
     n = iter(range(1, 10))
     lines = [c(f"# {next(n)} · stop the node first, if it is already running"), ""]
+    if fam["node"] == "kogany":
+        lines += [c("# Kogany's default config file and state directory, which differ by OS"),
+                  f'{k("if")} [ "$({k("uname")})" = Darwin ]; {k("then")}',
+                  f'  CONF=$HOME/Library/Preferences/kogany.toml; CACHE=$HOME/Library/Caches/kogany',
+                  f'{k("else")}',
+                  '  CONF=${XDG_CONFIG_HOME:-$HOME/.config}/kogany.toml; CACHE=${XDG_CACHE_HOME:-$HOME/.cache}/kogany',
+                  f'{k("fi")}', ""]
     if fid == "pruned":
-        lines += [c(f"# {next(n)} · run in pruned storage mode (one-way; macOS: ~/Library/Preferences/kogany.toml)"),
-                  f'{k("mkdir")} -p ~/.config',
-                  f'{k("cat")} &gt; ~/.config/kogany.toml &lt;&lt;{s(chr(39) + "EOF" + chr(39))}',
+        lines += [c(f"# {next(n)} · run in pruned storage mode (one-way; this replaces any existing kogany.toml)"),
+                  f'{k("mkdir")} -p "$({k("dirname")} "$CONF")"',
+                  f'{k("cat")} &gt; "$CONF" &lt;&lt;{s(chr(39) + "EOF" + chr(39))}',
                   "[state.storage_mode.pruned]",
                   f"tx_retention = {RETENTION}",
                   "EOF", ""]
@@ -151,10 +158,10 @@ def commands(cfg, data, fam):
               f'{k("minisign")} -Vm SHA256SUMS -P {s(key)}',
               f'{k("shasum")} -a 256 -c SHA256SUMS', ""]
     if fam["node"] == "kogany":
-        lines += [c(f"# {next(n)} · replace the state cache (macOS: ~/Library/Caches/kogany)"),
-                  f'{k("rm")} -rf ~/.cache/kogany/state ~/.cache/kogany/non_finalized_state',
-                  f'{k("mkdir")} -p ~/.cache/kogany && {k("tar")} -xzf $T -C ~/.cache/kogany',
-                  f'{k("cat")} ~/.cache/kogany/state/v30/mainnet/version   {c("# must be 30.2.0")}', "",
+        lines += [c(f"# {next(n)} · replace the state"),
+                  f'{k("rm")} -rf "$CACHE/state" "$CACHE/non_finalized_state"',
+                  f'{k("mkdir")} -p "$CACHE" && {k("tar")} -xzf $T -C "$CACHE"',
+                  f'{k("cat")} "$CACHE/state/v30/mainnet/version"   {c("# must be 30.2.0")}', "",
                   c(f"# {next(n)} · start — the node resumes from block $H, not genesis"),
                   f'{k("koganyd")} start']
     else:
