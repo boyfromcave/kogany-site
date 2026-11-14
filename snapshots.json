@@ -1,5 +1,5 @@
 {
-  "_comment": "What the snapshots page reads at build time. The bucket cannot be listed publicly, so the candidate heights are listed here; a height whose manifest is not published yet is simply not shown. Layout and fields: ycash-infra bundles/state/FORMAT.md (ycash-state/2, kogany-state/1 and /2) on vaults/kogany-compat, and bundles/state/mainnet/README.md.",
+  "_comment": "What the snapshots page reads at build time. The bucket cannot be listed publicly, so the candidate heights are listed here; a height whose manifest is not published yet is simply not shown, and a family with \"hide_until_published\" shows no card until its first manifest is published. A manifest is used only where its format, network, height, storage mode (kogany) and flavour (ycashd) match the family. Layout and fields: ycash-infra bundles/state/FORMAT.md (ycash-state/2, kogany-state/1 and /2) and bundles/state/mainnet/README.md; the full-insight layout (main-insight/) is ycash-infra PR 44.",
   "base": "https://ycash-contributors-object-store.s3.us-east-1.amazonaws.com/snapshots",
   "key": {
     "id": "02C923A6C593AF18",
@@ -7,13 +7,30 @@
     "file": "/keys/ycash-release.pub",
     "source": "ycash-infra keys/ycash-release.pub"
   },
+  "groups": [
+    {
+      "id": "kogany",
+      "title": "For Kogany",
+      "binary": "koganyd",
+      "intro": "These restore into koganyd, the Kogany node, and nothing else: they are Kogany's own state database (Zakura format), not a ycashd datadir. koganyd v1.8.0-ycash.beta1 and v1.8.0-ycash.beta2 both use state format 30.2.0; a build with a different state format ignores the snapshot and syncs from genesis."
+    },
+    {
+      "id": "ycashd",
+      "title": "For ycashd 6.22.x",
+      "binary": "ycashd",
+      "intro": "These restore into ycashd of the 6.22.x line (ycash6), and nothing else: they are a ycashd datadir (blocks/, chainstate/, vaults/), not a Kogany state. They carry no wallet, no peers.dat and no ycash.conf."
+    }
+  ],
   "families": [
     {
       "id": "pruned",
-      "title": "Pruned",
-      "tag": "For most nodes",
+      "group": "kogany",
+      "title": "Kogany · Pruned",
+      "tag": "For most Kogany nodes",
       "card": true,
-      "desc": "All the state a Kogany node needs to run, with raw transactions kept for the most recent 34,560 blocks (30 days). One-way: a pruned node can't return to archive mode.",
+      "restores_into": "koganyd in pruned mode (tx_retention ≥ 10,000)",
+      "contains": "Pruned: headers, the UTXO set, nullifiers, note commitment trees, vault and YED state; raw transactions for the most recent 34,560 blocks (30 days)",
+      "desc": "All the state a Kogany node needs to run, with raw transactions kept for the most recent 34,560 blocks. One-way: a pruned node can't return to archive mode.",
       "dir": "kogany-main-pruned",
       "latest": "kogany-main-pruned/latest-30.2.0/manifest.json",
       "formats": [
@@ -29,9 +46,12 @@
     },
     {
       "id": "archive",
-      "title": "Archive",
+      "group": "kogany",
+      "title": "Kogany · Archive",
       "tag": null,
       "card": true,
+      "restores_into": "koganyd, archive or pruned mode",
+      "contains": "Archive: the full Kogany state, with every raw transaction since genesis",
       "desc": "The full Kogany state, including every historic transaction. Restores into an archive or a pruned node.",
       "dir": "kogany-main",
       "latest": "kogany-main/latest-30.2.0/manifest.json",
@@ -49,17 +69,53 @@
     },
     {
       "id": "ycashd",
-      "title": "ycashd",
-      "tag": null,
-      "card": false,
-      "desc": "A ycashd 6.22 datadir (blocks, chainstate, vaults), with the node's own statement of the state and its Sapling tree state.",
+      "group": "ycashd",
+      "title": "ycashd · Full",
+      "tag": "For most ycashd nodes",
+      "card": true,
+      "restores_into": "ycashd 6.22.x, default flags",
+      "contains": "Full datadir: every block and undo file, the block index, chainstate and vaults; no txindex, no insight explorer indexes",
+      "desc": "A ycashd 6.22 datadir with every block, the node's own statement of the state and its Sapling tree state. For a node run with the default flags; it starts without txindex or the insight explorer.",
       "dir": "main",
       "latest": "main/latest/manifest.json",
       "formats": [
         "ycash-state/2"
       ],
+      "flavour": "full",
       "storage_mode": null,
       "node": "ycashd",
+      "conf": [],
+      "files": [
+        "manifest.json",
+        "SHA256SUMS",
+        "SHA256SUMS.minisig",
+        "statement-ycash6.json",
+        "treestate.json"
+      ]
+    },
+    {
+      "id": "insight",
+      "group": "ycashd",
+      "title": "ycashd · Full + indexes",
+      "tag": "For explorers and light-wallet backends",
+      "card": true,
+      "hide_until_published": true,
+      "restores_into": "ycashd 6.22.x with experimentalfeatures=1, insightexplorer=1, txindex=1",
+      "contains": "Full datadir, plus the transaction index (in blocks/index/) and the insight explorer indexes (blocks/insight-index/)",
+      "desc": "The full datadir with txindex and the insight explorer indexes already built, so an explorer or light-wallet backend skips the -reindex that turning them on costs. The node must run with the three index flags, or it refuses to start. The indexes are covered by the checksum, but by no statement field: they are the publisher's, not consensus state.",
+      "dir": "main-insight",
+      "latest": "main-insight/latest/manifest.json",
+      "formats": [
+        "ycash-state/2"
+      ],
+      "flavour": "full-insight",
+      "storage_mode": null,
+      "node": "ycashd",
+      "conf": [
+        "experimentalfeatures=1",
+        "insightexplorer=1",
+        "txindex=1"
+      ],
       "files": [
         "manifest.json",
         "SHA256SUMS",
@@ -71,12 +127,27 @@
   ],
   "heights": [
     {
-      "height": 3087341,
+      "height": 3100949,
+      "families": [
+        "insight"
+      ],
+      "label": "Tip"
+    },
+    {
+      "height": 3090808,
       "families": [
         "pruned",
         "archive"
       ],
       "label": "Tip"
+    },
+    {
+      "height": 3087341,
+      "families": [
+        "pruned",
+        "archive"
+      ],
+      "label": "Earlier tip"
     },
     {
       "height": 3087294,
@@ -87,22 +158,47 @@
     },
     {
       "height": 3079999,
-      "label": "Proposed shadow-fork height"
+      "families": [
+        "pruned",
+        "archive",
+        "ycashd"
+      ],
+      "label": "Shadow-fork height"
     },
     {
       "height": 2800000,
+      "families": [
+        "pruned",
+        "archive",
+        "ycashd"
+      ],
       "label": "Chain-supply checkpoint"
     },
     {
       "height": 2275000,
+      "families": [
+        "pruned",
+        "archive",
+        "ycashd"
+      ],
       "label": "End of the Development Fund mandate"
     },
     {
       "height": 1100006,
+      "families": [
+        "pruned",
+        "archive",
+        "ycashd"
+      ],
       "label": "Canopy activation"
     },
     {
       "height": 570000,
+      "families": [
+        "pruned",
+        "archive",
+        "ycashd"
+      ],
       "label": "Ycash fork block"
     }
   ]

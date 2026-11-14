@@ -1,47 +1,35 @@
 <!--
 title: Snapshots
-description: Ycash mainnet state snapshots for bootstrapping Kogany and ycashd nodes from a recent block height instead of syncing from genesis, signed with the Ycash release key.
+description: Ycash mainnet state snapshots, one set for Kogany (koganyd) and one for ycashd 6.22.x, for bootstrapping a node from a recent block height instead of syncing from genesis, signed with the Ycash release key.
 -->
 <div class="container">
   <header class="page-head">
     <h1>Snapshots</h1>
-    <p class="lede">Ycash mainnet state snapshots for bootstrapping Kogany and <code>ycashd</code> nodes from a recent block height instead of syncing from genesis.</p>
+    <p class="lede">Ycash mainnet state snapshots for bootstrapping a node from a recent block height instead of syncing from genesis. A snapshot is made by one node program and restores into that program only: pick the set for the node you run.</p>
+    <ul class="snap-jump">
+      <li><a href="#kogany"><b>For Kogany</b> <code>koganyd</code></a> <span>Kogany state database, pruned or archive</span></li>
+      <li><a href="#ycashd"><b>For ycashd 6.22.x</b> <code>ycashd</code></a> <span>ycashd datadir, with or without the explorer indexes</span></li>
+    </ul>
   </header>
 
   {{ snapshot_notice }}
 
-  <section class="snap-cards" aria-label="Latest snapshots">
-    {{ snapshot_cards }}
-  </section>
+  {{ snapshot_groups }}
 
-  <section class="split" aria-label="Run a node">
+  <section class="split" aria-label="Before you restore">
     <aside>
-      <h2>Run a node</h2>
-      <p>Start a new node, or replace an existing node's state with the latest snapshot. Fetch the latest manifest, then that height's files. Check the <code>SHA256SUMS</code> signature against the Ycash release key, check every file against <code>SHA256SUMS</code>, and unpack the state. A pruned snapshot needs the node set to pruned mode first.</p>
+      <h2>Before you restore</h2>
+      <p>Each card's restore steps fetch the latest manifest, then that height's files. Check the <code>SHA256SUMS</code> signature against the Ycash release key, check every file against <code>SHA256SUMS</code>, and unpack the state. A pruned Kogany snapshot needs the node set to pruned mode first.</p>
       <p>Needs <a href="https://jqlang.github.io/jq/" rel="noopener">jq</a> and <a href="https://jedisct1.github.io/minisign/" rel="noopener">minisign</a>. <a href="https://aria2.github.io/" rel="noopener">aria2</a> downloads in parallel and checks the checksum as it goes; use the curl tab if it isn't installed.</p>
     </aside>
     <div class="main">
-      <div class="code" data-cmd>
-        <div class="code-bar">
-          <div class="seg" role="tablist" aria-label="Node">{{ snapshot_family_tabs }}</div>
-          <span class="seg-sep"></span>
-          <div class="seg" role="tablist" aria-label="Download tool">
-            <button type="button" role="tab" aria-selected="false" data-cmd-tool="curl">curl</button>
-            <button type="button" role="tab" aria-selected="true" data-cmd-tool="aria2">aria2</button>
-          </div>
-          <span class="spacer"></span>
-          <button class="copy-btn" type="button" data-copy-visible>Copy</button>
-        </div>
-        {{ snapshot_commands }}
-      </div>
-
       <div class="panel">
         <span class="label accent">Release signing key</span>
         <h3>Ycash release key <code>{{ key_id }}</code></h3>
-        <p>Every snapshot's <code>SHA256SUMS</code> is signed with the Ycash release key, in <code>SHA256SUMS.minisig</code> beside it. Check the signature before you check the files: the signature proves the release owner published the checksum list, and the checksum list then vouches for every file. The public key is:</p>
+        <p>Every snapshot's <code>SHA256SUMS</code>, for Kogany and for ycashd alike, is signed with the Ycash release key, in <code>SHA256SUMS.minisig</code> beside it. Check the signature before you check the files: the signature proves the holder of the release key published the checksum list, and the checksum list then vouches for every file. The public key is:</p>
         <div class="code"><div class="code-bar"><span class="file">ycash-release.pub · key id {{ key_id }}</span><span class="spacer"></span><button class="copy-btn" type="button" data-copy-target="relkey">Copy</button></div>
 <pre id="relkey">{{ key_public }}</pre></div>
-        <p class="small muted">Also as a file: <a href="/keys/ycash-release.pub">ycash-release.pub</a>, for <code>minisign -Vm SHA256SUMS -p ycash-release.pub</code>. The first line of the key and of every <code>.minisig</code> names the key id; they must match. A signature from any other key is not the release owner's.</p>
+        <p class="small muted">Also as a file: <a href="/keys/ycash-release.pub">ycash-release.pub</a>, for <code>minisign -Vm SHA256SUMS -p ycash-release.pub</code>. The first line of the key and of every <code>.minisig</code> names the key id; they must match. A signature from any other key is not a release signature.</p>
       </div>
 
       <div class="panel">
@@ -55,7 +43,7 @@ description: Ycash mainnet state snapshots for bootstrapping Kogany and ycashd n
   <section class="split" aria-label="All snapshots">
     <aside><h2>All snapshots</h2><p>The tip, plus fixed heights at Ycash's epoch boundaries, where the node lines are compared block for block.</p></aside>
     <div class="main">
-      <div class="all-snaps">{{ snapshot_lists }}</div>
+      <div class="all-snaps snap-lists">{{ snapshot_lists }}</div>
       <p class="raw"><b>Raw data</b> — {{ snapshot_raw }}</p>
     </div>
   </section>
