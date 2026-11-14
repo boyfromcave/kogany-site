@@ -9,7 +9,7 @@ description: yewd serves the ycashd wallet RPCs beside a Kogany node, so YecWall
     <p class="lede">For software that still speaks to <code>ycashd</code>'s built-in wallet, <code>yewd</code> serves the same RPCs beside a Kogany node.</p>
   </header>
   <div class="column prose section-end">
-    <div class="notice"><p><strong>Planned.</strong> <code>yewd</code> is built alongside waves W5–W8. It is finished when the existing wallet contract tests and wallet scripts pass against Kogany plus <code>yewd</code>, with no <code>ycashd</code> present.</p></div>
+    <div class="notice"><p><strong>Source only, for testing.</strong> <code>yewd</code> has no binary release yet. With the Kogany <a href="/download/">v1.8.0-ycash.beta2</a> pre-release it is built from source at yew <code>fc56fba7</code>. Sends between every address type, vault locks, mints, YED sends and redeems were run end to end on regtest with Kogany as <code>yewd</code>'s node and as the miner.</p></div>
     <h2>What it is</h2>
     <p><code>yewd</code> is the YEW wallet core run as a daemon. It's the third front end on that core, beside the mobile app and the web wallet. It follows Kogany through the node's RPC, its indexer streams and lightwalletd, and presents the <code>ycashd</code> wallet interface, Yellowback calls included, on its own port.</p>
     <h2>Why a separate process</h2>

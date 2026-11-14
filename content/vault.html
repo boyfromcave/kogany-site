@@ -108,28 +108,27 @@ description: Rollout status of the Ycash vault network upgrade, live testnet fig
               <tr><td>New opcodes</td><td>0xb2 CHECKSEQUENCEVERIFY · 0xc0 CHECKSETSIG · 0xc1 CHECKSETDORMANT · 0xc2 CHECKPQSIG</td></tr>
               <tr><td>Owner signatures</td><td>SLH-DSA (SHA2-128s)</td></tr>
               <tr><td>YED holder signatures</td><td>Falcon-512</td></tr>
-              <tr><td>rpcversion</td><td>8</td></tr>
+              <tr><td>rpcversion</td><td>9</td></tr>
               <tr><td>Proof of work</td><td>Equihash (192,7)</td></tr>
             </tbody>
           </table></div>
         </details>
         <ol class="steps">
-          <li><div><b>Build the matching revision</b><p>The revision appears here when a Kogany build passes the testnet sync gate. Until then, use <code>ycashd</code> 6.22.x.</p></div></li>
+          <li><div><b>Get the current pre-release</b><p>Download and verify <code>koganyd</code> v1.8.0-ycash.beta2 from the <a href="/download/">download page</a>, or build its tag. It follows the fast testnet through the Vault activation with <code>ycashd</code>'s block hashes.</p></div></li>
           <li><div><b>Bootstrap from a snapshot (optional)</b><p>Restore a verified testnet snapshot from the <a href="/snapshots/">snapshots page</a>, or sync from genesis to stay fully self-validating.</p></div></li>
           <li><div><b>Save the configuration and start</b><p>Save the configuration below, start the node, and check <code>getblockchaininfo</code> for the testnet profile and an advancing tip.</p></div></li>
         </ol>
         <div class="code">
-          <div class="code-bar"><span class="file">kogany-testnet.toml · placeholder</span><span class="spacer"></span><button class="copy-btn" type="button" data-copy-target="cfg">Copy</button></div>
+          <div class="code-bar"><span class="file">testnet.toml · fast testnet</span><span class="spacer"></span><button class="copy-btn" type="button" data-copy-target="cfg">Copy</button></div>
 <pre id="cfg"><span class="k">[network]</span>
-network = <span class="s">"Testnet"</span>          <span class="c"># Ycash testnet, profile below</span>
-testnet_profile = <span class="s">"yb-fast"</span>   <span class="c"># or "yb-slow"</span>
-listen_addr = <span class="s">"0.0.0.0:&lt;port&gt;"</span>
-initial_testnet_peers = [<span class="s">"&lt;published with the launch&gt;"</span>]
+network = <span class="s">"Testnet"</span>   <span class="c"># fast testnet; "TestnetSlow" or "TestnetLegacy" for the shadow forks</span>
+listen_addr = <span class="s">"[::]"</span>
+initial_testnet_peers = [<span class="s">"fastnet-seed.ycash.team:18833"</span>]
 
 <span class="k">[rpc]</span>
-listen_addr = <span class="s">"127.0.0.1:&lt;port&gt;"</span></pre>
+listen_addr = <span class="s">"127.0.0.1:18832"</span></pre>
         </div>
-        <p class="muted small">The final key names and ports are published with the first Kogany testnet build.</p>
+        <p class="muted small">Ports: fast testnet 18833, RPC 18832; slow testnet 18933 / 18932. No testnet peers are built in, so name a seed. Start with <code>./koganyd -c testnet.toml start</code>.</p>
       </div>
     </div>
   </div>
