@@ -1,6 +1,6 @@
 <!--
 title: Vault Dashboard
-description: Rollout status of the Ycash vault network upgrade, live testnet figures, the faucet and how to run a node.
+description: Rollout status of the Ycash vault network upgrade, a dated testnet snapshot, the faucet and how to run a node.
 -->
 <div class="container dash">
   <div class="split">
@@ -23,7 +23,7 @@ description: Rollout status of the Ycash vault network upgrade, live testnet fig
         <div class="track">
           <span class="done-line"></span>
           <div class="stage"><span class="label">Regtest · devnet</span><span class="tag ok">Active</span><div class="when">-nuparams=6d5b7a31:&lt;h&gt;</div></div>
-          <div class="stage future"><span class="label">Testnet</span><span class="tag pend" data-field="testnet_state">Pending</span><div class="when" data-field="testnet_height">Height to be set</div></div>
+          <div class="stage" data-stage="testnet"><span class="label">Testnet</span><span class="tag ok" data-field="testnet_state">Active</span><div class="when" data-field="testnet_height">yb-fast since 510,400 · yb-slow pending</div></div>
           <div class="stage future"><span class="label">Mainnet</span><span class="tag">Not scheduled</span><div class="when">Set by the gate-passing release</div></div>
         </div>
       </section>
@@ -34,11 +34,11 @@ description: Rollout status of the Ycash vault network upgrade, live testnet fig
       </div>
 
       <dl class="stats">
-        <div class="stat"><dt>Best block</dt><dd data-field="height">—</dd><dd data-field="best_hash">awaiting testnet launch</dd></div>
+        <div class="stat"><dt>Best block</dt><dd data-field="height">—</dd><dd data-field="best_hash">not in the snapshot</dd></div>
         <div class="stat"><dt>Header time age</dt><dd data-field="header_age">—</dd><dd>At the observation time below</dd></div>
         <div class="stat"><dt>Median interval</dt><dd data-field="median_interval">—</dd><dd data-field="interval_note">Last 300 intervals</dd></div>
-        <div class="stat"><dt>Open vaults</dt><dd data-field="vaults">—</dd><dd>Locked under live templates</dd></div>
-        <div class="stat"><dt>YED supply</dt><dd data-field="yed_supply">—</dd><dd>Minted against locked YEC</dd></div>
+        <div class="stat"><dt>Open vaults</dt><dd data-field="vaults">—</dd><dd data-field="vaults_note">Locked under live templates</dd></div>
+        <div class="stat"><dt>YED supply</dt><dd data-field="yed_supply">—</dd><dd data-field="yed_note">Minted against locked YEC</dd></div>
         <div class="stat"><dt>Attestor seats</dt><dd data-field="seats">—</dd><dd data-field="seats_note">Founding signer set</dd></div>
       </dl>
 
@@ -46,12 +46,12 @@ description: Rollout status of the Ycash vault network upgrade, live testnet fig
         <table>
           <thead><tr><th>Height</th><th>Hash</th><th class="r">Header time · UTC</th></tr></thead>
           <tbody data-field-rows="blocks">
-            <tr><td colspan="3" class="empty">No blocks yet: the public testnets have not launched.</td></tr>
+            <tr><td colspan="3" class="empty">No blocks in this snapshot.</td></tr>
           </tbody>
         </table>
       </div>
-      <p class="updated"><span data-field="updated">Build-time data</span> · <span data-field="network_label">yb-fast</span></p>
-      <div class="notice" data-live-warning><p><strong>Not live.</strong> These are placeholders until the testnet status service publishes. Values that aren't published show as a dash, never as estimates.</p></div>
+      <p class="updated"><span data-field="updated">Testnet snapshot of 2026-11-14 15:21 UTC, not a live feed</span> · <span data-field="network_label">yb-fast</span></p>
+      <div class="notice" data-live-warning><p><strong>Not live.</strong> These figures are a fixed snapshot read from a testnet node at the time shown above, not a live feed. Values the snapshot does not have show as a dash, never as estimates.</p></div>
 
       <div class="dash-grid">
         <section class="panel">
@@ -64,7 +64,7 @@ description: Rollout status of the Ycash vault network upgrade, live testnet fig
               <input id="faucet-addr" name="address" placeholder="ytestsapling1… or sm…" autocomplete="off" disabled>
               <button type="submit" disabled>Request</button>
             </div>
-            <span class="hint" data-faucet-status>Faucet offline: it opens with the testnet launch.</span>
+            <span class="hint" data-faucet-status>Faucet offline: not deployed yet.</span>
           </form>
         </section>
         <section class="panel">
@@ -85,7 +85,7 @@ description: Rollout status of the Ycash vault network upgrade, live testnet fig
               <rect x="230" y="96" width="34" height="28" style="fill:var(--accent)"/>
               <g style="fill:var(--accent);opacity:.55"><circle cx="300" cy="150" r="3"/><circle cx="318" cy="158" r="3"/><circle cx="336" cy="146" r="3"/><circle cx="352" cy="160" r="3"/></g>
             </svg>
-            <span class="over">Preview · goes live with the testnets</span>
+            <span class="over">Preview · not deployed yet</span>
           </div>
           <div class="actions" style="margin-top:1rem"><a class="button" data-viz-link aria-disabled="true" href="#">Open the visualizer</a></div>
         </section>
@@ -95,7 +95,7 @@ description: Rollout status of the Ycash vault network upgrade, live testnet fig
         <h2>Run a node</h2>
         <div class="params">
           <div><span class="label">Network</span>Ycash testnet (<span data-field="network_label">yb-fast</span>)</div>
-          <div><span class="label">Vault activation height</span><span data-field="activation">to be set</span></div>
+          <div><span class="label">Vault activation height</span><span data-field="activation">510,400 on yb-fast</span></div>
           <div><span class="label">Vault branch ID</span>6d5b7a31</div>
         </div>
         <p>Join a public Ycash testnet with the matching revision and configuration. Keep testnet data apart from mainnet's, and keep JSON-RPC bound to localhost. A bootstrap snapshot is optional.</p>

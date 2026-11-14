@@ -1,14 +1,32 @@
 {
   "status": "configured",
-  "generated": null,
+  "generated": "2026-11-14T15:21:17Z",
   "networks": {
-    "yb-fast": {"network_label": "yb-fast", "testnet_state": "Pending", "testnet_height": "Height to be set",
-                "height": null, "best_hash": null, "header_age": null, "median_interval": null,
-                "vaults": null, "yed_supply": null, "seats": "7", "seats_note": "7 house seats",
-                "activation": null, "faucet_url": null, "viz_url": null, "blocks": []},
-    "yb-slow": {"network_label": "yb-slow", "testnet_state": "Pending", "testnet_height": "Height to be set",
-                "height": null, "best_hash": null, "header_age": null, "median_interval": null,
-                "vaults": null, "yed_supply": null, "seats": "3", "seats_note": "3 house seats, 4 invited later",
-                "activation": null, "faucet_url": null, "viz_url": null, "blocks": []}
+    "yb-fast": {"network_label": "yb-fast", "testnet_state": "Active", "testnet_height": "yb-fast since 510,400",
+                "height": "510,796", "best_hash": "003dba83a5e6bc167773a5d35dd3acc72e856561e70985fdb4f3d74fea42a422",
+                "header_age": "20 h 54 min", "median_interval": null,
+                "interval_note": "Mined in GPU bursts, not continuously: no steady interval",
+                "vaults": "4", "vaults_note": "0.4 YEC locked in 1 signer set",
+                "yed_supply": "Not active", "yed_note": "No attestor set assigned: the Yellowback module is off, no YED minted",
+                "seats": "1", "seats_note": "1 signer set, 1 seat, dormant",
+                "activation": "510,400 (active)", "faucet_url": null, "viz_url": null,
+                "blocks": [
+                  {"height": 510796, "hash": "003dba83a5e6bc167773a5d35dd3acc72e856561e70985fdb4f3d74fea42a422", "time": "2026-11-13 18:26:53"},
+                  {"height": 510795, "hash": "008cda60ad7c044d72ef72a38d37c1b53e25faecddc893c68be79c5e2209d3d2", "time": "2026-11-13 18:26:50"},
+                  {"height": 510794, "hash": "008d5ec9c9b8c86b5523fb1e6d0de93528b696471336bc9e3c1aacef868cb11d", "time": "2026-11-13 18:26:29"},
+                  {"height": 510793, "hash": "00273a5039922dab7ef7c5ab8f3be2349b89292755e7c8e50b452f3283e1e445", "time": "2026-11-13 18:26:12"},
+                  {"height": 510792, "hash": "008e1dcae7950390ea4e72b2ac8f0ced773d5ecc3447980e20d53c0e8038f502", "time": "2026-11-13 18:26:00"},
+                  {"height": 510791, "hash": "0000425bd9fc8ef076519b5d66971b2ad869811e9fb111ab31d3115d46f7de67", "time": "2026-11-13 18:25:51"},
+                  {"height": 510790, "hash": "00261cba81eb19ce718b8e76ae94ddeeff2f5b6ee1341743648fadabde5f7bd2", "time": "2026-11-13 18:25:44"},
+                  {"height": 510789, "hash": "0020804297985101d5883b829279b0b347c5fbed9a4ff62623e68feca3535879", "time": "2026-11-13 18:25:36"},
+                  {"height": 510788, "hash": "006f32bad24dca8ebb9368e8d10d0e110142a1e59499a41391efea268ee4b6f1", "time": "2026-11-13 18:25:23"},
+                  {"height": 510787, "hash": "003ebe149d0223f0eb85a1af413aa2487167f81256bdd249c464b25efdc91dcc", "time": "2026-11-13 18:24:51"}
+                ]},
+    "yb-slow": {"network_label": "yb-slow", "testnet_state": "Pending", "testnet_height": "yb-slow not active yet",
+                "height": null, "best_hash": "seed up at the snapshot height; not mined yet",
+                "header_age": null, "median_interval": null, "interval_note": null,
+                "vaults": null, "vaults_note": null, "yed_supply": null, "yed_note": null,
+                "seats": null, "seats_note": null,
+                "activation": "not active yet", "faucet_url": null, "viz_url": null, "blocks": []}
   }
 }

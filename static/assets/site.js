@@ -91,7 +91,8 @@
   }
 
   // Dashboard. The feed (static/data/README.md) carries one entry per network.
-  // Only status "live" clears the warning; null values render as a dash, never a guess.
+  // Only status "live" clears the warning and enables the faucet and visualizer; any other
+  // status (a dated snapshot) keeps the warning. Null values render as a dash, never a guess.
   function wireDashboard() {
     var box = $("[data-live]");
     if (!box) return;
@@ -106,11 +107,28 @@
         var key = el.dataset.field;
         if (el.dataset.orig === undefined) el.dataset.orig = el.textContent;
         if (key === "network_label") { el.textContent = profile; return; }
+        if (key === "updated") {
+          var g = feed && feed.generated;
+          el.textContent = !g ? el.dataset.orig : feed.status === "live"
+            ? "Updated " + g.replace("T", " ").replace(/:\d\dZ?$/, "") + " UTC"
+            : "Testnet snapshot of " + g.replace("T", " ").replace(/:\d\dZ?$/, "") + " UTC, not a live feed";
+          return;
+        }
         if (!net || !(key in net)) return;
         var v = net[key];
         el.textContent = v === null || v === undefined || v === "" ? el.dataset.orig : String(v);
       });
+      var stage = $("[data-stage=testnet]", box);
+      if (stage && net && net.testnet_state) {
+        var active = net.testnet_state === "Active";
+        stage.classList.toggle("future", !active);
+        var tag = $("[data-field=testnet_state]", stage);
+        tag.classList.toggle("ok", active);
+        tag.classList.toggle("pend", !active);
+      }
       var rows = $("[data-field-rows=blocks]", box);
+      if (rows && rows.dataset.orig === undefined) rows.dataset.orig = rows.innerHTML;
+      if (rows && !(net && net.blocks && net.blocks.length)) rows.innerHTML = rows.dataset.orig;
       if (rows && net && net.blocks && net.blocks.length) {
         rows.innerHTML = "";
         net.blocks.slice(0, 6).forEach(function (b) {
@@ -132,7 +150,7 @@
         form.action = on ? net.faucet_url : "";
         $("[data-faucet-status]", form).textContent = on
           ? "Opens the " + profile + " faucet, which checks the address and may ask your browser for a short proof of work."
-          : "Faucet offline: it opens with the testnet launch.";
+          : "Faucet offline: not deployed yet.";
       }
       var viz = $("[data-viz-link]", box);
       if (viz) {
