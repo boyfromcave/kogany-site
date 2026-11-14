@@ -90,7 +90,7 @@
     });
   }
 
-  // Tabs ([data-tabs], snapshots page). Without JavaScript every panel shows, one after another.
+  // Tabs ([data-tabs]: the snapshots and download pages). Without JavaScript every panel shows, one after another.
   // The URL hash (a panel id, or one of its data-tab-alias ids) picks the tab.
   function wireTabs() {
     $$("[data-tabs]").forEach(function (box) {

@@ -1,65 +1,140 @@
 <!--
 title: Download
-description: How to get Kogany — the koganyd v1.8.0-ycash.beta2 pre-release binaries, building from source at the tag, and verifying downloads by checksum, cosign signature and build provenance.
+description: Pre-release node binaries for Kogany (koganyd v1.8.0-ycash.beta2) and Ycash6 (ycashd v6.22.0-beta2), with download, verification and fast-testnet steps.
 -->
 <div class="container">
   <header class="page-head">
     <h1>Download</h1>
-    <p class="lede">How to get Kogany: the current pre-release's binaries for Linux and macOS, a source build at its tag, and how to verify a download by checksum, cosign signature and build provenance.</p>
+    <p class="lede">Pre-release node binaries from GitHub, with the steps to verify and run them.</p>
   </header>
-  <div class="column prose section-end">
-    <section class="panel">
-      <span class="label">Latest pre-release</span>
-      <p class="big">koganyd v1.8.0-ycash.beta2 <small>pre-release · 13 Nov 2026</small></p>
-      <p>Kogany, the Ycash node on Zakura, with the vault network upgrade and the Ycash Yellowback (YED) rule module. <a href="https://github.com/boyfromcave/kogany/releases/tag/v1.8.0-ycash.beta2" rel="noopener">Release notes and downloads</a> on GitHub. It follows the previous pre-release, <a href="https://github.com/boyfromcave/kogany/releases/tag/v1.8.0-ycash.beta1" rel="noopener">v1.8.0-ycash.beta1</a> (5 Nov 2026).</p>
-    </section>
-    <div class="notice"><p><strong>Pre-release, for testing.</strong> Kogany is not yet a qualified Ycash node line. Run it on the Ycash testnets, and expect resyncs and breaking changes between pre-releases. No activation height for the vault upgrade is set on mainnet.</p></div>
 
-    <h2>Release binaries</h2>
-    <p>The release publishes <code>koganyd</code> for three platforms, each with an SPDX software bill of materials. The Linux builds ship their debug info separately: put <code>koganyd.debug</code> beside <code>koganyd</code> to get file and line numbers in backtraces.</p>
-    <div class="table-wrap"><table>
-      <thead><tr><th>Platform</th><th>Archive</th><th>Also attached</th></tr></thead>
-      <tbody>
-        <tr><td>Linux x86_64</td><td><code>koganyd_v1.8.0-ycash.beta2_linux-x86_64.tar.gz</code></td><td><code>…_linux-x86_64.debug.tar.gz</code>, <code>…_linux-x86_64.spdx.json</code></td></tr>
-        <tr><td>Linux aarch64</td><td><code>koganyd_v1.8.0-ycash.beta2_linux-aarch64.tar.gz</code></td><td><code>…_linux-aarch64.debug.tar.gz</code>, <code>…_linux-aarch64.spdx.json</code></td></tr>
-        <tr><td>macOS aarch64 (Apple silicon)</td><td><code>koganyd_v1.8.0-ycash.beta2_macos-aarch64.tar.gz</code></td><td><code>…_macos-aarch64.spdx.json</code></td></tr>
-        <tr><td>All</td><td><code>SHA256SUMS</code></td><td><code>SHA256SUMS.cosign.bundle</code></td></tr>
-      </tbody>
-    </table></div>
-    <p class="muted small">No Windows or Intel macOS build. The Linux builds need glibc 2.39 (Ubuntu 24.04 or newer). The <a href="https://github.com/boyfromcave/kogany/releases" rel="noopener">GitHub releases page</a> is the only official channel: a Kogany binary offered anywhere else is not from this project.</p>
+  <div class="notice column"><p><strong>Pre-release, for testing.</strong> No mainnet activation height is set for the vault upgrade.</p></div>
 
-    <h2>Verifying a download</h2>
-    <p>Verification has three parts: your downloads against <code>SHA256SUMS</code>, the cosign signature over <code>SHA256SUMS</code>, and the GitHub build attestation proving the release workflow built each asset from the repository. The cosign signature is keyless: its identity is the tag-push run of <code>kogany-release.yml</code> that built these assets, so a rebuild means a new tag.</p>
-    <div class="code"><div class="code-bar"><span class="file">Linux x86_64 shown; use your platform's archive</span><span class="spacer"></span><button class="copy-btn" type="button" data-copy-target="verify">Copy</button></div>
-<pre id="verify"><span class="k">gh</span> release download v1.8.0-ycash.beta2 -R boyfromcave/kogany
-<span class="k">sha256sum</span> -c SHA256SUMS --ignore-missing   <span class="c"># macOS: shasum -a 256 -c SHA256SUMS --ignore-missing</span>
+  <div class="snap-tabs" data-tabs>
+    <div class="snap-tablist" role="tablist" aria-label="Node">
+      <button type="button" role="tab" id="tab-kogany" aria-controls="kogany" aria-selected="true" tabindex="0"><b>Kogany</b><span>koganyd</span></button>
+      <button type="button" role="tab" id="tab-ycash6" aria-controls="ycash6" aria-selected="false" tabindex="-1"><b>Ycash6</b><span>ycashd 6.22.x</span></button>
+    </div>
+
+    <section class="snap-panel dl-panel" id="kogany" data-tab-panel>
+      <header class="snap-panel-head"><h2>Kogany</h2></header>
+      <div class="dl-top">
+        <h3><a href="https://github.com/boyfromcave/kogany/releases/tag/v1.8.0-ycash.beta2" rel="noopener">koganyd v1.8.0-ycash.beta2</a></h3>
+        <ul class="snap-facts"><li>13 Nov 2026</li><li>pre-release</li><li>Rust, on Zakura</li></ul>
+      </div>
+      <div class="table-wrap"><table class="dl-assets">
+        <thead><tr><th>Platform</th><th>File</th><th class="r">Size</th></tr></thead>
+        <tbody>
+          <tr><td>Linux x86_64</td><td><a href="https://github.com/boyfromcave/kogany/releases/download/v1.8.0-ycash.beta2/koganyd_v1.8.0-ycash.beta2_linux-x86_64.tar.gz"><code>koganyd_v1.8.0-ycash.beta2_linux-x86_64.tar.gz</code></a></td><td class="r">18.5 MB</td></tr>
+          <tr><td>Linux aarch64</td><td><a href="https://github.com/boyfromcave/kogany/releases/download/v1.8.0-ycash.beta2/koganyd_v1.8.0-ycash.beta2_linux-aarch64.tar.gz"><code>koganyd_v1.8.0-ycash.beta2_linux-aarch64.tar.gz</code></a></td><td class="r">18.9 MB</td></tr>
+          <tr><td>macOS Apple silicon</td><td><a href="https://github.com/boyfromcave/kogany/releases/download/v1.8.0-ycash.beta2/koganyd_v1.8.0-ycash.beta2_macos-aarch64.tar.gz"><code>koganyd_v1.8.0-ycash.beta2_macos-aarch64.tar.gz</code></a></td><td class="r">17.6 MB</td></tr>
+          <tr><td>Checksums</td><td><a href="https://github.com/boyfromcave/kogany/releases/download/v1.8.0-ycash.beta2/SHA256SUMS"><code>SHA256SUMS</code></a>, <a href="https://github.com/boyfromcave/kogany/releases/download/v1.8.0-ycash.beta2/SHA256SUMS.cosign.bundle"><code>SHA256SUMS.cosign.bundle</code></a></td><td class="r">—</td></tr>
+        </tbody>
+      </table></div>
+
+      <div class="code snap-restore" data-cmd><div class="code-bar"><span class="file">Download, verify, run on the fast testnet</span><span class="seg-sep"></span><div class="seg" role="tablist" aria-label="Platform"><button type="button" role="tab" aria-selected="true" data-cmd-family="k-linux-x86_64">Linux x86_64</button><button type="button" role="tab" aria-selected="false" data-cmd-family="k-linux-aarch64">Linux aarch64</button><button type="button" role="tab" aria-selected="false" data-cmd-family="k-macos-aarch64">macOS</button></div><span class="spacer"></span><button class="copy-btn" type="button" data-copy-visible>Copy</button></div>
+<pre id="cmd-kogany"><span class="c"># 1 · download your platform's archive and the checksums</span>
+<span class="c dl-nojs"># every platform's line shows: keep only yours
+</span>V=<span class="s">v1.8.0-ycash.beta2</span>
+<span data-only="k-linux-x86_64">P=<span class="s">linux-x86_64</span></span><span data-only="k-linux-aarch64">P=<span class="s">linux-aarch64</span></span><span data-only="k-macos-aarch64">P=<span class="s">macos-aarch64</span></span>
+<span class="k">for</span> f <span class="k">in</span> SHA256SUMS SHA256SUMS.cosign.bundle koganyd_${V}_${P}.tar.gz; <span class="k">do</span>
+  <span class="k">curl</span> -fLO https://github.com/boyfromcave/kogany/releases/download/$V/$f
+<span class="k">done</span>
+
+<span class="c"># 2 · checksum, cosign signature, build provenance</span>
+<span data-only="k-linux-x86_64"><span class="k">sha256sum</span> -c SHA256SUMS --ignore-missing</span><span data-only="k-linux-aarch64"><span class="k">sha256sum</span> -c SHA256SUMS --ignore-missing</span><span data-only="k-macos-aarch64"><span class="k">shasum</span> -a 256 -c SHA256SUMS --ignore-missing</span>
 <span class="k">cosign</span> verify-blob --bundle <span class="s">SHA256SUMS.cosign.bundle</span> \
   --certificate-identity <span class="s">https://github.com/boyfromcave/kogany/.github/workflows/kogany-release.yml@refs/tags/v1.8.0-ycash.beta2</span> \
   --certificate-oidc-issuer <span class="s">https://token.actions.githubusercontent.com</span> SHA256SUMS
-<span class="k">gh</span> attestation verify <span class="s">koganyd_v1.8.0-ycash.beta2_linux-x86_64.tar.gz</span> -R boyfromcave/kogany</pre></div>
-    <p>Expect <code>OK</code> for each file you downloaded, <code>Verified OK</code> from cosign, and a passing attestation. <code>gh attestation verify</code> also checks an SBOM or <code>SHA256SUMS</code> itself. If any check fails, delete the download and <a href="https://github.com/boyfromcave/kogany/issues" rel="noopener">report it</a>.</p>
-    <p class="muted small">Kogany pre-releases are signed with cosign, not with the Ycash release minisign key. That key (id <code>02C923A6C593AF18</code>) signs the <a href="/snapshots/">mainnet snapshots</a>.</p>
+<span class="k">gh</span> attestation verify koganyd_${V}_${P}.tar.gz -R boyfromcave/kogany
 
-    <h2>Running on the fast testnet</h2>
-    <p>With no testnet peers built in, name a seed. <code>network = "Testnet"</code> is the fast testnet (testnet-yb-fast); <code>"TestnetSlow"</code> and <code>"TestnetLegacy"</code> select the two shadow forks of mainnet.</p>
-    <div class="code"><div class="code-bar"><span class="file">testnet.toml</span><span class="spacer"></span><button class="copy-btn" type="button" data-copy-target="run">Copy</button></div>
-<pre id="run"><span class="k">tar</span> xzf koganyd_v1.8.0-ycash.beta2_linux-x86_64.tar.gz <span class="k">&amp;&amp;</span> <span class="k">cd</span> koganyd_v1.8.0-ycash.beta2_linux-x86_64
+<span class="c"># 3 · run on the fast testnet (no testnet peers are built in: name the seed)</span>
+<span class="k">tar</span> xzf koganyd_${V}_${P}.tar.gz <span class="k">&amp;&amp;</span> <span class="k">cd</span> koganyd_${V}_${P}
 <span class="k">printf</span> <span class="s">'[network]\nnetwork = "Testnet"\nlisten_addr = "[::]"\ninitial_testnet_peers = ["fastnet-seed.ycash.team:18833"]\n\n[rpc]\nlisten_addr = "127.0.0.1:18832"\n'</span> &gt; testnet.toml
 ./koganyd -c testnet.toml start</pre></div>
-    <p>Ports: mainnet 8833, RPC 8832; fast testnet 18833 / 18832; slow testnet 18933 / 18932. Each archive's <code>README.txt</code> has the details. <code>koganyd</code> has no wallet: the wallet is <a href="/yewd/"><code>yewd</code></a>, built from source.</p>
 
-    <h2>Building from source</h2>
-    <p>Build the tag. <code>koganyd</code> is the <code>kogany</code> package's <code>ycash</code> build; without the feature, the build gives upstream Zakura's Zcash node and no <code>koganyd</code>.</p>
-    <div class="code"><div class="code-bar"><span class="spacer"></span><button class="copy-btn" type="button" data-copy-target="src">Copy</button></div>
-<pre id="src"><span class="k">git</span> clone https://github.com/boyfromcave/kogany
+      <p class="snap-note">Expect <code>OK</code>, <code>Verified OK</code> and a passing attestation. <code>koganyd</code> has no wallet: use <a href="/yewd/"><code>yewd</code></a>. Not yet a qualified Ycash node line.</p>
+
+      <details class="snap-more">
+        <summary>Platforms, ports, source build</summary>
+        <p>No Windows or Intel macOS build. Linux needs glibc 2.39 (Ubuntu 24.04 or newer); its debug info is separate (<code>…debug.tar.gz</code>: put <code>koganyd.debug</code> beside <code>koganyd</code>). Each archive has an SPDX SBOM and a <code>README.txt</code>.</p>
+        <p>Ports: mainnet 8833 / RPC 8832; fast testnet 18833 / 18832; slow testnet 18933 / 18932. <code>network = "TestnetSlow"</code> or <code>"TestnetLegacy"</code> selects the shadow forks of mainnet.</p>
+        <p>The cosign signature is keyless: its identity is the tag-push run of <code>kogany-release.yml</code>. Kogany is signed with cosign, not the Ycash release minisign key.</p>
+        <div class="code"><div class="code-bar"><span class="file">Build from source</span><span class="spacer"></span><button class="copy-btn" type="button" data-copy-target="kogany-src">Copy</button></div>
+<pre id="kogany-src"><span class="k">git</span> clone https://github.com/boyfromcave/kogany
 <span class="k">cd</span> kogany <span class="k">&amp;&amp;</span> <span class="k">git</span> checkout v1.8.0-ycash.beta2
 <span class="k">cargo</span> build --release --locked -p kogany --bin koganyd --features ycash</pre></div>
-    <p>The integration branch, <code>upgrade/vault</code>, builds the same way and runs ahead of the latest pre-release.</p>
+        <p>Without <code>--features ycash</code> the build is upstream Zakura's Zcash node. Not on crates.io; no installer yet. Earlier: <a href="https://github.com/boyfromcave/kogany/releases/tag/v1.8.0-ycash.beta1" rel="noopener">v1.8.0-ycash.beta1</a> (5 Nov 2026).</p>
+      </details>
 
-    <h2>Installing with Cargo</h2>
-    <p class="muted">Not available. Kogany is not published to crates.io: its Ycash crates come from a fork pinned by git revision, so build from the tagged source above.</p>
+      <p class="small muted">Only official source: <a href="https://github.com/boyfromcave/kogany/releases" rel="noopener">GitHub releases</a> · <a href="/snapshots/#kogany">Kogany snapshots</a> · <a href="https://github.com/boyfromcave/kogany/issues" rel="noopener">report a problem</a></p>
+    </section>
 
-    <h2>Using the interactive installer</h2>
-    <p class="muted">Planned: a script pinned to each release, with its checksums, covering standard Kogany, the <a href="/yewd/"><code>yewd</code></a> wallet sidecar, Docker and source builds.</p>
+    <section class="snap-panel dl-panel" id="ycash6" data-tab-panel>
+      <header class="snap-panel-head"><h2>Ycash6</h2></header>
+      <div class="dl-top">
+        <h3><a href="https://github.com/boyfromcave/ycash6/releases/tag/v6.22.0-beta2" rel="noopener">ycashd v6.22.0-beta2</a></h3>
+        <ul class="snap-facts"><li>13 Nov 2026</li><li>pre-release</li><li>C++, on Zcash 6.x</li></ul>
+      </div>
+      <div class="table-wrap"><table class="dl-assets">
+        <thead><tr><th>Platform</th><th>File</th><th class="r">Size</th></tr></thead>
+        <tbody>
+          <tr><td>Linux x86_64</td><td><a href="https://github.com/boyfromcave/ycash6/releases/download/v6.22.0-beta2/ycashd_v6.22.0-beta2_linux_x86_64.tar.gz"><code>ycashd_v6.22.0-beta2_linux_x86_64.tar.gz</code></a></td><td class="r">168.1 MB</td></tr>
+          <tr><td>Linux aarch64</td><td><a href="https://github.com/boyfromcave/ycash6/releases/download/v6.22.0-beta2/ycashd_v6.22.0-beta2_linux_aarch64.tar.gz"><code>ycashd_v6.22.0-beta2_linux_aarch64.tar.gz</code></a></td><td class="r">167.0 MB</td></tr>
+          <tr><td>macOS Apple silicon</td><td><a href="https://github.com/boyfromcave/ycash6/releases/download/v6.22.0-beta2/ycashd_v6.22.0-beta2_macos_aarch64.tar.gz"><code>ycashd_v6.22.0-beta2_macos_aarch64.tar.gz</code></a></td><td class="r">60.8 MB</td></tr>
+          <tr><td>Windows</td><td><a href="https://github.com/boyfromcave/ycash6/releases/download/v6.22.0-beta2/ycashd_v6.22.0-beta2_windows.zip"><code>ycashd_v6.22.0-beta2_windows.zip</code></a></td><td class="r">167.6 MB</td></tr>
+          <tr><td>macOS Intel <span class="muted">(best effort)</span></td><td><a href="https://github.com/boyfromcave/ycash6/releases/download/v6.22.0-beta2/ycashd_v6.22.0-beta2_macos_x86_64.tar.gz"><code>ycashd_v6.22.0-beta2_macos_x86_64.tar.gz</code></a></td><td class="r">60.9 MB</td></tr>
+          <tr><td>Ubuntu 18.04 x86_64 <span class="muted">(best effort)</span></td><td><a href="https://github.com/boyfromcave/ycash6/releases/download/v6.22.0-beta2/ycashd_v6.22.0-beta2_ubuntu_18.04_x86_64.tar.gz"><code>ycashd_v6.22.0-beta2_ubuntu_18.04_x86_64.tar.gz</code></a></td><td class="r">168.1 MB</td></tr>
+          <tr><td>Checksums</td><td><a href="https://github.com/boyfromcave/ycash6/releases/download/v6.22.0-beta2/SHA256SUMS"><code>SHA256SUMS</code></a>, <a href="https://github.com/boyfromcave/ycash6/releases/download/v6.22.0-beta2/SHA256SUMS.minisig"><code>.minisig</code></a>, <a href="https://github.com/boyfromcave/ycash6/releases/download/v6.22.0-beta2/SHA256SUMS.cosign.bundle"><code>.cosign.bundle</code></a></td><td class="r">—</td></tr>
+        </tbody>
+      </table></div>
+
+      <div class="code snap-restore" data-cmd><div class="code-bar"><span class="file">Download, verify, run on the fast testnet</span><span class="seg-sep"></span><div class="seg" role="tablist" aria-label="Platform"><button type="button" role="tab" aria-selected="true" data-cmd-family="y-linux_x86_64">Linux x86_64</button><button type="button" role="tab" aria-selected="false" data-cmd-family="y-linux_aarch64">Linux aarch64</button><button type="button" role="tab" aria-selected="false" data-cmd-family="y-macos_aarch64">macOS</button></div><span class="spacer"></span><button class="copy-btn" type="button" data-copy-visible>Copy</button></div>
+<pre id="cmd-ycash6"><span class="c"># 1 · download your package and the signed checksums (P can also be macos_x86_64, ubuntu_18.04_x86_64)</span>
+<span class="c dl-nojs"># every platform's line shows: keep only yours
+</span>V=<span class="s">v6.22.0-beta2</span>
+<span data-only="y-linux_x86_64">P=<span class="s">linux_x86_64</span></span><span data-only="y-linux_aarch64">P=<span class="s">linux_aarch64</span></span><span data-only="y-macos_aarch64">P=<span class="s">macos_aarch64</span></span>
+<span class="k">for</span> f <span class="k">in</span> SHA256SUMS SHA256SUMS.minisig SHA256SUMS.cosign.bundle ycashd_${V}_${P}.tar.gz; <span class="k">do</span>
+  <span class="k">curl</span> -fLO https://github.com/boyfromcave/ycash6/releases/download/$V/$f
+<span class="k">done</span>
+
+<span class="c"># 2 · Ycash release key, checksum, cosign signature, build provenance</span>
+<span class="k">minisign</span> -Vm SHA256SUMS -P <span class="s">RWQYr5PFpiPJAigk86vf89bPYrJCXj5tskgRAPRYFsEXyciZo8dveOGQ</span>
+<span data-only="y-linux_x86_64"><span class="k">sha256sum</span> -c --ignore-missing SHA256SUMS</span><span data-only="y-linux_aarch64"><span class="k">sha256sum</span> -c --ignore-missing SHA256SUMS</span><span data-only="y-macos_aarch64"><span class="k">shasum</span> -a 256 -c --ignore-missing SHA256SUMS</span>
+<span class="k">cosign</span> verify-blob --bundle <span class="s">SHA256SUMS.cosign.bundle</span> \
+  --certificate-identity <span class="s">https://github.com/boyfromcave/ycash6/.github/workflows/yellowback-release.yml@refs/tags/v6.22.0-beta2</span> \
+  --certificate-oidc-issuer <span class="s">https://token.actions.githubusercontent.com</span> SHA256SUMS
+<span class="k">gh</span> attestation verify ycashd_${V}_${P}.tar.gz -R boyfromcave/ycash6 \
+  --source-ref refs/tags/v6.22.0-beta2 \
+  --signer-workflow boyfromcave/ycash6/.github/workflows/yellowback-release.yml
+
+<span class="c"># 3 · run on the fast testnet (no testnet seed is built in: name one)</span>
+<span class="k">tar</span> xzf ycashd_${V}_${P}.tar.gz <span class="k">&amp;&amp;</span> <span class="k">cd</span> ycashd_${V}_${P}
+<span class="k">mkdir</span> -p ~/.ycash-fast
+<span class="k">printf</span> <span class="s">'testnet=1\ntestnetprofile=fast\naddnode=fastnet-seed.ycash.team\n'</span> &gt; ~/.ycash-fast/ycash.conf
+./ycashd -datadir=$HOME/.ycash-fast -daemon
+./ycash-cli -datadir=$HOME/.ycash-fast getblockchaininfo   <span class="c"># chain "test", testnetprofile "fast"</span></pre></div>
+
+      <p class="snap-note">Expect <code>Signature and comment signature verified</code>, <code>OK</code>, <code>Verified OK</code> and exit status 0. Back up <code>wallet.dat</code> first; clients need RPC contract version 9.</p>
+
+      <details class="snap-more">
+        <summary>Networks, macOS, Windows, known limitations</summary>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Network</th><th>Select with</th><th>P2P / RPC</th><th>Vault upgrade</th></tr></thead>
+          <tbody>
+            <tr><td>mainnet</td><td>(default)</td><td>8833 / 8832</td><td>no activation height</td></tr>
+            <tr><td>fast testnet</td><td><code>-testnet -testnetprofile=fast</code></td><td>18833 / 18832</td><td>from height 510,400</td></tr>
+            <tr><td>slow testnet</td><td><code>-testnet -testnetprofile=slow</code></td><td>18933 / 18932</td><td>no height yet</td></tr>
+            <tr><td>legacy testnet</td><td><code>-testnet -testnetprofile=legacy</code></td><td>19033 / 19032</td><td>never</td></tr>
+          </tbody>
+        </table></div>
+        <p>Seeds: <code>fastnet-seed</code>, <code>slownet-seed</code>, <code>legacy-seed</code> <code>.ycash.team</code>. The slow and legacy testnets copy mainnet to height 3,079,999: a mainnet-sized sync.</p>
+        <p>macOS binaries are ad-hoc signed, not notarized: after a browser download run <code>xattr -dr com.apple.quarantine .</code> in the unpacked directory (a <code>curl</code> download is not quarantined). Windows: data directory <code>%APPDATA%\Ycash</code>.</p>
+        <p>Known limitations: no YED attestor set on any public network, so YED cannot be minted on the fast testnet; <code>z_sendmany</code>'s <code>minconf</code> defaults to 10; <code>gettransaction</code> shows a wrong <code>fee</code> for Sapling-funded sends. All in the <a href="https://github.com/boyfromcave/ycash6/blob/v6.22.0-beta2/doc/release-notes/release-notes-6.22.0-beta2.md" rel="noopener">release notes</a>.</p>
+        <p>The 4.5.0-lineage reference node, ycash-dd, has no packages: build its tag <a href="https://github.com/boyfromcave/ycash-dd/tree/vault-params/v6.22.0-beta2" rel="noopener"><code>vault-params/v6.22.0-beta2</code></a> from source.</p>
+      </details>
+
+      <p class="small muted">Only official source: <a href="https://github.com/boyfromcave/ycash6/releases" rel="noopener">GitHub releases</a> · <a href="/snapshots/#ycash6">Ycash6 snapshots</a> · <a href="https://github.com/boyfromcave/ycash6/issues" rel="noopener">report a problem</a></p>
+    </section>
   </div>
 </div>
