@@ -398,3 +398,25 @@ html[data-effective-theme="dark"] .theme-toggle .moon { display: none; }
 @media (min-width: 50rem) { .all-snaps.two { grid-template-columns: repeat(2, 1fr); } }
 .snap-row span { display: block; }
 .snap-row a.copy-btn { text-decoration: none; white-space: nowrap; }
+
+/* ===== snapshots page: Kogany / ycashd groups (snapshots_render.py) — begin ===== */
+.snap-jump { list-style: none; padding: 0; margin: 1.4rem 0 0; display: grid; gap: .6rem; }
+@media (min-width: 50rem) { .snap-jump { grid-template-columns: 1fr 1fr; } }
+.snap-jump li { border: 1px solid var(--rule); background: var(--bg-raised); padding: .8rem 1rem; }
+.snap-jump a { text-decoration: none; color: var(--text-strong); display: block; }
+.snap-jump span { display: block; font-size: .85rem; color: var(--text-muted); margin-top: .2rem; }
+.snap-group { margin: 0 0 4rem; }
+.snap-group-head { border-left: 3px solid var(--rule-strong); padding: .1rem 0 .1rem 1rem; margin: 0 0 1.4rem; }
+.snap-group-kogany .snap-group-head { border-left-color: var(--accent); }
+.snap-group-head h2 { margin: 0 0 .4rem; }
+.snap-group-head p { margin: 0; color: var(--text-muted); max-width: 60rem; }
+.snap-group .snap-cards { margin-bottom: 0; }
+.snap .snap-node { font: 600 .66rem var(--font-mono); text-transform: uppercase; letter-spacing: var(--track); color: var(--text-muted); margin: 0 0 .5rem; }
+.snap h3 { font: 600 .8rem var(--font-mono); text-transform: uppercase; letter-spacing: var(--track); margin: 0; display: flex; flex-wrap: wrap; gap: .7rem; align-items: center; }
+.snap-restore { margin: 1.2rem 0 0; }
+.snap-restore .code { margin-top: .8rem; }
+.snap-restore pre { overflow-x: auto; }
+.snap-lists { grid-template-columns: 1fr; }
+@media (min-width: 50rem) { .snap-lists { grid-template-columns: 1fr 1fr; } }
+.snap-list-group h3 code { font-size: .9em; }
+/* ===== snapshots page: Kogany / ycashd groups — end ===== */
