@@ -1,4 +1,4 @@
-# kogany-site — kogany.net
+# kogany-site — kogany.ycash.team
 
 The website for **Kogany**, the Ycash full node in Rust (a fork of Zakura) and the third node line
 for the Ycash vault upgrade. Static HTML, one stylesheet, one small script, a dependency-free Python

@@ -51,5 +51,5 @@ libraries), so nothing is copied from it: no CSS, text, logo or imagery.
 - Snapshots (2026-11-02): `/snapshots/` reads the `ycash-state/2` and `kogany-state/1` manifests (ycash-infra `bundles/state/FORMAT.md`) from the contributors' bucket at build time. Still open: CORS on the bucket for live in-browser refresh; an index file so the heights need not be listed in `snapshots.json`.
 - Have the testnet status service emit `static/data/README.md`'s shape (`status: live` only when fresh).
 - Generate the Markdown twins from the same content.
-- Domain: kogany.net (not yet registered/pointed, as far as this repo knows), hosting (static: GitHub Pages
-  or the ycash-infra gateway).
+- Domain and hosting (2026-11-13): the site is served at kogany.ycash.team (it was planned as kogany.net)
+  from a private S3 bucket behind CloudFront; the infrastructure is defined in ycash-ops.
