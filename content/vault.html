@@ -11,7 +11,7 @@ description: Rollout status of the Ycash vault network upgrade, a dated testnet 
       <p>Ycash's next network upgrade. This page tracks its rollout.</p>
       <ul>
         <li><b>Vaults</b><span>YEC locked under rules every full node checks, released by a bonded signer set.</span></li>
-        <li><b>Post-quantum keys</b><span>SLH-DSA vault owners and Falcon-512 YED holders from the first block.</span></li>
+        <li><b>Post-quantum keys</b><span>SLH-DSA vault owners and Falcon-512 YED holders from the first block, and <a href="/quantum/">post-quantum addresses</a> for plain YEC.</span></li>
         <li><b>Owner recovery</b><span>If a signer set goes dormant, the vault's owner can always take the YEC back.</span></li>
         <li><b>Yellowback</b><span>Mint YED against locked YEC; undercollateralized positions can be claimed.</span></li>
       </ul>
@@ -26,6 +26,13 @@ description: Rollout status of the Ycash vault network upgrade, a dated testnet 
           <div class="stage" data-stage="testnet"><span class="label">Testnet</span><span class="tag ok" data-field="testnet_state">Active</span><div class="when" data-field="testnet_height">yb-fast since 510,400 · yb-slow pending</div></div>
           <div class="stage future"><span class="label">Mainnet</span><span class="tag">Not scheduled</span><div class="when">Set by the gate-passing release</div></div>
         </div>
+      </section>
+
+      <section class="panel leftbar pq-callout" aria-labelledby="pq-callout-title">
+        <span class="label accent">Post-quantum addresses</span>
+        <h3 id="pq-callout-title">Live on the fast testnet</h3>
+        <p>With the vault upgrade, a Ycash address can be held by a post-quantum key instead of secp256k1: FN-DSA-512 (Falcon) or SLH-DSA, checked by the new opcode <code>OP_CHECKPQSIG</code> (0xc2). The third character names the scheme: <code>tqf…</code> / <code>tqs…</code> on testnet, <code>sqf…</code> / <code>sqs…</code> on mainnet once the upgrade activates there. Vault owners and YED holders are post-quantum from the first block. Existing addresses and the Sapling pool stay classical.</p>
+        <div class="actions"><a class="button" href="/quantum/">How post-quantum addresses work</a></div>
       </section>
 
       <div class="profile-tabs" role="tablist" aria-label="Network">

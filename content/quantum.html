@@ -1,0 +1,143 @@
+<!--
+title: Post-quantum addresses
+description: How the Ycash vault upgrade lets a transparent address be owned by an FN-DSA-512 (Falcon) or SLH-DSA key, what stays classical, and its status on the fast testnet.
+-->
+<div class="container">
+  <header class="page-head">
+    <p class="eyebrow">Vault network upgrade</p>
+    <h1>Post-quantum addresses</h1>
+    <p class="lede">After the vault upgrade, a Ycash address can be controlled by a post-quantum signature key instead of a secp256k1 (ECDSA) key. This works today on the public fast testnet. Mainnet has no activation height yet.</p>
+  </header>
+  <div class="column prose section-end">
+    <div class="notice"><p><strong>Testnet only, beta software.</strong> The vault upgrade is active on the fast testnet (<code>testnet-yb-fast</code>) from height 510,400, and on regtest at a height you choose. No mainnet activation height is set. The vault upgrade and Ycash Yellowback (YED) are proposals and have not been adopted by the Ycash Foundation. They have had internal reviews only. No third-party audit has been done yet (<a href="#reviews">reviews</a>).</p></div>
+
+    <h2 id="what">What it is</h2>
+    <p>Today every transparent Ycash coin is locked to an elliptic-curve key on secp256k1, the curve Bitcoin uses. A large enough quantum computer running Shor's algorithm could compute the private key from the public key. Such a machine does not exist today, but anything published on the chain stays there. A public key that is already visible could be attacked once one does: the key of every address that has spent coins, and of every address that has been reused.</p>
+    <p>The vault upgrade adds a new kind of transparent output whose key is a post-quantum signature key. The output stores only a 32-byte hash of the key, so the public key appears on the chain when the coins are spent, not before. Two signature schemes are available, and each address shows which one it uses:</p>
+    <ul>
+      <li><strong>Plain YEC.</strong> Any wallet on the upgraded node can receive YEC at a post-quantum address and spend it from there, alongside its ECC (<code>s1…</code>) and Sapling (<code>ys1…</code>) addresses.</li>
+      <li><strong>Vault owners.</strong> Every vault's owner key is post-quantum. This includes YED vaults and bridge vaults, and the key used for owner recovery. The vault templates have no secp256k1 owner slot. The wallet's default owner scheme is SLH-DSA.</li>
+      <li><strong>YED holders.</strong> From the first block of the upgrade, every output that receives YED must be held by an FN-DSA-512 key. A transfer that would assign YED to any other kind of output is invalid. This means no ECDSA-held YED can ever exist on a network running the upgrade.</li>
+    </ul>
+    <h3>What stays classical</h3>
+    <ul>
+      <li><strong>Existing transparent addresses</strong> (<code>s1…</code> on mainnet) keep their secp256k1 keys. Coins are protected only once they are moved to a post-quantum address.</li>
+      <li><strong>The Sapling shielded pool</strong> is unchanged. Its spend authority and proof system are not post-quantum, and its privacy depends on the address staying secret. The upgrade plan leaves the shielded pool to separate future work: Ycash would adopt Zcash's post-quantum pool on the 6.x node line once Zcash ships one.</li>
+      <li><strong>Attestor sets and bridge guardians</strong> still sign with secp256k1. If those keys were ever broken, the vault owner's post-quantum recovery path is the backstop.</li>
+      <li><strong>The server side of a hybrid YED payment channel</strong> (client post-quantum, server ECDSA) is only as strong as secp256k1. Servers are told to settle channels promptly.</li>
+    </ul>
+
+    <h2 id="schemes">Two signature schemes</h2>
+    <p>Both schemes are at NIST security category 1 (comparable to AES-128). The larger category-5 variants were rejected because of their size: Falcon-1024 does not fit the standard scriptSig limit, and an SLH-DSA-256s signature is 29.8 KB. Ycash uses two schemes because each covers the other's weakness. FN-DSA-512 is small and fast, so it suits keys that sign often. SLH-DSA relies only on hash functions and has a final standard, so it suits keys that sign rarely but guard the most value.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th></th><th>FN-DSA-512 (Falcon)</th><th>SLH-DSA-SHA2-128s (SPHINCS+)</th></tr></thead>
+      <tbody>
+        <tr><td>Scheme id · address letter</td><td><code>0x02</code> · <code>f</code></td><td><code>0x01</code> · <code>s</code></td></tr>
+        <tr><td>Hardness assumption</td><td>NTRU lattices</td><td>Hash functions only (SHA-256)</td></tr>
+        <tr><td>Public key</td><td>897 bytes</td><td>32 bytes</td></tr>
+        <tr><td>Signature</td><td>666 bytes</td><td>7,856 bytes</td></tr>
+        <tr><td>Spending scriptSig</td><td>1,577 bytes</td><td>7,938 bytes</td></tr>
+        <tr><td>Verification, measured</td><td>≈21–27 µs (ECDSA ≈20 µs)</td><td>≈250 µs</td></tr>
+        <tr><td>Used for</td><td>YED holders; default for plain YEC (<code>getnewaddress pq</code>)</td><td>Vault owners (default); plain YEC on request (<code>getnewaddress pqslh</code>)</td></tr>
+        <tr><td>NIST status</td><td>Selected in 2022; FIPS 206 not yet published</td><td>FIPS 205, final (13 August 2024)</td></tr>
+      </tbody>
+    </table></div>
+    <p class="muted small">The verification times come from the developers' denial-of-service measurement of October 2026. Each figure is one signature check. They are a guide, not a benchmark.</p>
+
+    <h3 id="fn-dsa">FN-DSA-512 (Falcon)</h3>
+    <p>Falcon is a lattice signature built on NTRU lattices. Its signatures and keys are the smallest of the NIST post-quantum signatures, which keeps everyday YED transfers affordable. NIST selected Falcon for standardization on <a href="https://www.nist.gov/news-events/news/2022/07/nist-announces-first-four-quantum-resistant-cryptographic-algorithms">5 July 2022</a>, and its standard is to be FIPS 206 (FN-DSA). <strong>FIPS 206 has not been published.</strong> As of 14 November 2026, NIST's <a href="https://csrc.nist.gov/publications/fips">FIPS list</a> has no FIPS 206 entry, either final or draft, and the <a href="https://csrc.nist.gov/projects/post-quantum-cryptography">NIST PQC project page</a> describes Falcon's standardization as "underway".</p>
+    <p><strong>What the node runs.</strong> The node calls scheme 2 "FN-DSA-512", but it implements Falcon-512 as submitted in NIST's third round, in the <em>padded</em> signature format, from PQClean's <code>falcon-padded-512/clean</code> at commit <code>0586a824</code>. Only one encoding is accepted: a fixed 666-byte signature (header <code>0x39</code>, nonce, compressed signature, zero padding). The shorter "compact" form is rejected. Verification uses integer arithmetic only, with no floating point and no heap allocation. The one local change to the vendored code removes a heap allocation in SHAKE256.</p>
+    <p><strong>Where it may differ from the final standard.</strong> The FN-DSA drafts are expected to change how the message is hashed before signing (domain separation with a context string), so the final FIPS 206 may not verify round-3 signatures. The opcode accepts any registered scheme id, so a later upgrade can add the final FN-DSA as scheme <code>0x03</code> next to <code>0x02</code>, and holders would move to it. Coins already paid to a scheme-2 key will remain spendable only with a round-3 Falcon signature. The Yellowback lead architect accepted this risk when choosing to activate Falcon from the first block. It is recorded in the audit (<a href="#reviews">below</a>). Vault owners use SLH-DSA, which is already final, and are not affected.</p>
+    <p><strong>Signing.</strong> Falcon's signer has a known side channel on small embedded chips. For that reason the YED holder key is a software key on desktop and mobile only. No hardware wallet supports it.</p>
+
+    <h3 id="slh-dsa">SLH-DSA-SHA2-128s (SPHINCS+)</h3>
+    <p>SLH-DSA is the NIST standard form of SPHINCS+. Its security rests only on the hash function, which is the most conservative assumption available. It is <a href="https://csrc.nist.gov/pubs/fips/205/final">FIPS 205</a>, published as a final standard on 13 August 2024. Its 7,856-byte signatures are large, so Ycash uses it where a key signs only a few times over its life: a vault owner redeeming or recovering.</p>
+    <p><strong>What the node runs.</strong> The parameter set is SLH-DSA-SHA2-128s, chosen because Ycash already uses SHA-256 and because the faster <code>128f</code> signature (17,088 bytes) exceeds the 10,000-byte script limit. The node uses FIPS 205's pure mode with an empty context string, not a pre-hash variant. The code is the PQ Code Package's <code>slhdsa-c</code> at commit <code>174c02e4</code>, tested against NIST's ACVP vectors. PQClean's SPHINCS+ round-3.1 code was rejected because it is not FIPS 205: it lacks the domain separation. The one local patch wipes secret key material from memory after key generation and signing. The node wallet signs in hedged mode, adding 16 random bytes per FIPS 205 §9.2. Verification accepts both hedged and deterministic signatures.</p>
+
+    <h2 id="how">How it works on Ycash</h2>
+    <h3>Addresses</h3>
+    <p>A post-quantum address is a Base58Check encoding of a 3-byte version and the 32-byte key hash, 53 characters long. The third character names the scheme: <code>f</code> for FN-DSA-512, <code>s</code> for SLH-DSA-SHA2-128s.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Network</th><th>YEC, FN-DSA-512</th><th>YEC, SLH-DSA</th><th>YED, FN-DSA-512</th><th>YED, SLH-DSA</th></tr></thead>
+      <tbody>
+        <tr><td>Mainnet</td><td><code>sqf…</code></td><td><code>sqs…</code></td><td><code>ybf…</code></td><td><code>ybs…</code></td></tr>
+        <tr><td>Testnet</td><td><code>tqf…</code></td><td><code>tqs…</code></td><td><code>ytf…</code></td><td><code>yts…</code></td></tr>
+        <tr><td>Regtest</td><td><code>rqf…</code></td><td><code>rqs…</code></td><td><code>yrf…</code></td><td><code>yrs…</code></td></tr>
+      </tbody>
+    </table></div>
+    <p>A YEC and a YED address of the same key pay to the same output script. The prefix only tells a wallet what it is sending. The ECC YED address (<code>yb…</code> on mainnet) is 35 characters, so length tells it apart from <code>ybf…</code>/<code>ybs…</code>. Addresses in the earlier form, without the scheme letter (written by builds before beta2), are refused.</p>
+    <h3>The script and <code>OP_CHECKPQSIG</code></h3>
+    <p>A post-quantum output is 35 bytes, compared with 25 for a P2PKH output:</p>
+    <div class="code"><div class="code-bar"><span class="file">scriptPubKey · scriptSig</span></div>
+<pre><span class="k">&lt;keyHash:32&gt;</span> OP_1|OP_2 OP_CHECKPQSIG           <span class="c"># 20 &lt;32 bytes&gt; 51|52 c2</span>
+&lt;sig_1&gt; … &lt;sig_s&gt; &lt;s&gt; &lt;pk_1&gt; … &lt;pk_p&gt; &lt;p&gt;           <span class="c"># the spend: chunks of at most 520 bytes</span></pre></div>
+    <p><code>OP_CHECKPQSIG</code> is opcode <code>0xc2</code>, allocated above <code>OP_NOP10</code> next to the vault opcodes <code>0xc0</code> and <code>0xc1</code>. Before the upgrade it is a bad opcode. It takes the scheme id and key hash from the output script. It then reassembles the public key and the signature from the scriptSig, which pushes them in canonical 520-byte chunks so the existing 520-byte element limit stays as it is. It checks the exact sizes and that <code>SHA256(scheme ‖ pk)</code> equals the key hash. Finally it verifies the signature over the same ZIP-243 signature hash <code>OP_CHECKSIG</code> uses; the last signature byte is the hash type. A wrong key or signature returns false, as <code>OP_CHECKSIG</code> does. A wrong size, bad chunking or an unknown scheme fails the script. The opcode applies to version-4 (Sapling) transactions only, and a script evaluation may execute it at most once.</p>
+    <h3>Size, policy and fees</h3>
+    <ul>
+      <li>A post-quantum input may carry a scriptSig of up to 9,000 bytes under relay policy. Other inputs keep the 1,650-byte limit. The consensus bounds, a 10,000-byte script and a 2 MB block, do not change.</li>
+      <li>For relay and block templates each <code>OP_CHECKPQSIG</code> counts as 20 signature operations. Consensus counts none, so the sigop count of historical blocks does not change.</li>
+      <li>Wallets price transactions with a post-quantum input by size, not with the flat fee. In beta2 that comes to about 27,000 zat for one SLH-DSA input and 5,500 zat for one FN-DSA-512 input. With an attested price the target rate is $0.02 per KB for plain YEC and $0.05 per KB for vault and Yellowback transactions, with a floor of 5,000 zat per KB. All of this is wallet and relay policy: no fee rule is in consensus.</li>
+      <li>A wrapped (P2SH) post-quantum script is valid but not relayed.</li>
+    </ul>
+    <h3>Wallets and RPCs</h3>
+    <ul>
+      <li><code>getnewaddress pq</code> gives an FN-DSA-512 address and <code>getnewaddress pqslh</code> an SLH-DSA one. <code>vault_getnewowner</code> gives an owner key, SLH-DSA by default. Post-quantum keys are derived from the wallet seed (HKDF-SHA256), so the usual seed backup covers them. They have no extended public key, so watch-only wallets import addresses.</li>
+      <li><code>z_sendmany</code> sends from an ECC, Sapling or post-quantum address to any mix of the three. A post-quantum source spends only its own coins and gets its change back.</li>
+      <li><code>sendtoaddress</code>, <code>sendmany</code>, <code>sendfrom</code> and <code>fundrawtransaction</code> spend ECC coins only. If the wallet's ECC coins do not cover a payment, these calls refuse it. Use <code>z_sendmany</code> from the post-quantum address instead.</li>
+      <li><code>z_gettotalbalance</code> reports <code>transparent_ecc</code>, <code>transparent_pq</code> and <code>pq_by_scheme</code>. <code>getwalletinfo</code> adds <code>balance_ecc</code>, <code>balance_pq</code> and <code>pq_by_scheme</code>. <code>z_validateaddress</code> and <code>validateaddress</code> return the scheme and key hash.</li>
+      <li>RPC contract version 9 (<code>yed_getinfo.rpcversion</code>) is the version with scheme-visible addresses.</li>
+    </ul>
+    <h3>Software that supports it</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Software</th><th>Role</th><th>Form</th></tr></thead>
+      <tbody>
+        <tr><td><code>ycashd</code> 6.22.0-beta2</td><td>Validates, and its wallet creates, sends from and reports post-quantum addresses</td><td><a href="https://github.com/boyfromcave/ycash6/releases/tag/v6.22.0-beta2">Pre-release binaries</a></td></tr>
+        <tr><td><code>koganyd</code> v1.8.0-ycash.beta2</td><td>Validates the vault upgrade as <code>ycashd</code> 6.22.0-beta2 does, and answers <code>validateaddress</code> for post-quantum addresses. It has no wallet.</td><td><a href="/download/">Pre-release binaries</a></td></tr>
+        <tr><td><code>yewd</code></td><td>The wallet that runs beside <code>koganyd</code>: post-quantum sends and balances by type</td><td><a href="/yewd/">Source only</a> (yew <code>fc56fba7</code>)</td></tr>
+        <tr><td>YecWallet, YEW</td><td>Desktop and mobile wallets</td><td>Support is in source on their development branches. No release yet.</td></tr>
+      </tbody>
+    </table></div>
+
+    <h2 id="status">Status</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Network</th><th>Post-quantum addresses</th></tr></thead>
+      <tbody>
+        <tr><td>Fast testnet (<code>testnet-yb-fast</code>)</td><td><span class="tag ok">Live</span> since the vault activation at height 510,400. Plain YEC sends work. YED cannot be minted there yet, because no attestor set is configured.</td></tr>
+        <tr><td>Regtest, devnet</td><td><span class="tag ok">Active</span> at the height you choose (<code>-nuparams=6d5b7a31:&lt;h&gt;</code>). YED with <code>-yellowbackattestorset</code>.</td></tr>
+        <tr><td>Slow testnet</td><td><span class="tag">No height yet</span></td></tr>
+        <tr><td>Mainnet</td><td><span class="tag">Not scheduled</span> No activation height is set. <code>getnewaddress pq</code> is refused on mainnet.</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3 id="reviews">Reviews</h3>
+    <ul>
+      <li><strong>Falcon-512 consensus audit, 2026-10-10</strong> <span class="tag pend">Internal</span>. Scope: the Falcon and SLH-DSA verification path and the opcode integration on both C++ node lines. Findings: the vendored Falcon verifier matches PQClean byte for byte, apart from the documented SHAKE patch. It is deterministic across compilers and settings and produced no sanitizer findings over 34 million mutated verifications. It agreed with two independent verifiers on all 6,503 test inputs, including NIST's 100 round-3 test vectors. SLH-DSA got a lighter pass, with no finding. Outcome: no critical or high finding, and the code was judged shippable on small conditions. One of them, an exact-length check in the Falcon entry point, is in the code. The audit's main caveat is not about the code: once coins are paid to a scheme-2 key, the protocol is committed to a signature scheme whose standard is not yet published.</li>
+      <li><strong>Follow-up internal review, 2026-10-12.</strong> It found that copies of secret keys stayed in memory after key generation and signing in both vendored libraries. These are now wiped, and SLH-DSA signing became hedged.</li>
+      <li><strong>Consensus review gate.</strong> Every consensus change in the post-quantum work went through two independent internal reviews before merging.</li>
+      <li><strong>Third-party audit:</strong> <span class="tag">Planned</span>, a gate before mainnet. None has been done.</li>
+    </ul>
+    <p>All reviews are listed on the <a href="/yellowback/audits/">audits page</a>.</p>
+
+    <h2 id="try">Try it on the fast testnet</h2>
+    <p>With <code>ycashd</code> 6.22.0-beta2 (<a href="https://github.com/boyfromcave/ycash6/releases/tag/v6.22.0-beta2">release and verification steps</a>), from the unpacked package directory:</p>
+    <div class="code"><div class="code-bar"><span class="file">ycashd 6.22.0-beta2 · fast testnet</span><span class="spacer"></span><button class="copy-btn" type="button" data-copy-target="pq-try">Copy</button></div>
+<pre id="pq-try"><span class="k">mkdir</span> -p ~/.ycash-fast
+<span class="k">printf</span> <span class="s">'testnet=1\ntestnetprofile=fast\naddnode=fastnet-seed.ycash.team\n'</span> &gt; ~/.ycash-fast/ycash.conf
+./ycashd -datadir=$HOME/.ycash-fast -daemon
+<span class="c"># once synced past height 510,400:</span>
+./ycash-cli -datadir=$HOME/.ycash-fast getnewaddress pq          <span class="c"># tqf… (FN-DSA-512)</span>
+./ycash-cli -datadir=$HOME/.ycash-fast getnewaddress pqslh       <span class="c"># tqs… (SLH-DSA)</span>
+./ycash-cli -datadir=$HOME/.ycash-fast z_gettotalbalance         <span class="c"># transparent_ecc, transparent_pq, pq_by_scheme</span>
+./ycash-cli -datadir=$HOME/.ycash-fast z_sendmany &lt;from&gt; <span class="s">'[{"address": "&lt;to&gt;", "amount": 0.1}]'</span> 1</pre></div>
+    <p>The last argument of <code>z_sendmany</code> is <code>minconf</code>, which defaults to 10. Coins received fewer than 10 blocks ago need a lower value. To run Kogany instead, follow the <a href="/vault/">vault page</a> and pair it with <a href="/yewd/"><code>yewd</code></a>.</p>
+
+    <h2 id="sources">Sources</h2>
+    <ul>
+      <li>NIST: <a href="https://csrc.nist.gov/pubs/fips/205/final">FIPS 205, SLH-DSA</a> · <a href="https://csrc.nist.gov/projects/post-quantum-cryptography">Post-Quantum Cryptography project</a> (Falcon / FN-DSA) · <a href="https://www.nist.gov/news-events/news/2022/07/nist-announces-first-four-quantum-resistant-cryptographic-algorithms">2022 selection</a></li>
+      <li>Specifications: <a href="https://github.com/boyfromcave/yellowback/blob/upgrade/vault/docs/plans/yellowback-quantum-plan.md">post-quantum plan</a> · <a href="https://github.com/boyfromcave/yellowback/blob/upgrade/vault/docs/plans/yellowback-quantum-spec.md">byte layouts and address encoding</a> · <a href="https://github.com/boyfromcave/yellowback/blob/upgrade/vault/docs/plans/yellowback-quantum-fees-spec.md">fee structure</a></li>
+      <li>Implementation: <a href="https://github.com/boyfromcave/ycash6/blob/upgrade/vault/src/crypto/pq/README.md">the vendored libraries, patches and test vectors</a> · <a href="https://github.com/boyfromcave/ycash6/blob/upgrade/vault/doc/vault-rpc.md">vault RPCs</a> · <a href="https://github.com/boyfromcave/ycash-dd/blob/upgrade/vault/doc/yellowback-pq-dos.md">denial-of-service measurement</a> · <a href="https://github.com/boyfromcave/ycash6/blob/v6.22.0-beta2/doc/release-notes/release-notes-6.22.0-beta2.md">6.22.0-beta2 release notes</a></li>
+      <li>Review: <a href="https://github.com/boyfromcave/yellowback/blob/upgrade/vault/docs/audits/yellowback-falcon-consensus-audit-20261010.md">Falcon-512 consensus audit</a> · <a href="/yellowback/audits/">all audits</a></li>
+      <li>On this site: <a href="/vault/">vault dashboard</a> · <a href="/download/">download</a> · <a href="/announcements/post-quantum-vaults/">Vaults are post-quantum from day one</a></li>
+    </ul>
+  </div>
+</div>

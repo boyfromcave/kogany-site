@@ -423,3 +423,7 @@ a.portrait { text-decoration: none; }
   html:not([data-nav-js]) .site-nav { gap: .5rem 1rem; }
 }
 /* ===== end up/team-nav-home ===== */
+/* === post-quantum: vault page callout (/quantum/ link) === */
+.pq-callout { margin: 1.6rem 0 2rem; }
+.pq-callout .actions { margin-top: 1.2rem; }
+/* === end post-quantum === */
