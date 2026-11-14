@@ -1,4 +1,4 @@
-// kogany.net — the only script. Loaded in <head> so a stored theme applies
+// The Kogany website — the only script. Loaded in <head> so a stored theme applies
 // before first paint. Every feature is an enhancement: pages are complete without
 // JavaScript (all command variants show, status shows build-time placeholders).
 (function () {

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build kogany.net into public/ — standard library only, no dependencies.
+"""Build the Kogany website into public/ — standard library only, no dependencies.
 
 Each page is an HTML fragment under content/, headed by a metadata comment:
 
@@ -15,6 +15,7 @@ sitemap.xml and the announcements feed (announcements/atom.xml) are generated.
 """
 
 import html
+import os
 import re
 import shutil
 import sys
@@ -28,7 +29,8 @@ ROOT = Path(__file__).resolve().parent
 CONTENT = ROOT / "content"
 STATIC = ROOT / "static"
 OUT = ROOT / "public"
-SITE = "https://kogany.net"
+# The site origin: canonical URLs, sitemap, robots.txt and the atom feed.
+SITE = os.environ.get("KOGANY_SITE_URL", "https://kogany.ycash.team").rstrip("/")
 NAME = "Kogany"
 REPO = "https://github.com/boyfromcave/kogany"
 
@@ -218,6 +220,7 @@ def main():
         notfound.parent.rmdir()
 
     urls = "".join(f"\n  <url><loc>{SITE}{p['url']}</loc></url>" for p in pages if p["url"] != "/404/")
+    (OUT / "robots.txt").write_text(f"User-agent: *\nAllow: /\nSitemap: {SITE}/sitemap.xml\n", encoding="utf-8")
     (OUT / "sitemap.xml").write_text(
         f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{urls}\n</urlset>\n',
         encoding="utf-8")
