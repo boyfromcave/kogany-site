@@ -11,9 +11,9 @@ description: The major engineering efforts inside Kogany — what each one chang
     <li>
       <div>
         <div class="n">01</div>
-        <span class="label">Consensus · in progress</span>
+        <span class="label">Consensus · in testing</span>
         <h2><a href="/engineering/three-lines-one-state-hash/">Three Node Lines, One State Hash</a></h2>
-        <p>Two C++ nodes and one Rust node must compute the same vault and Yellowback state at every block. The Rust traps that threaten it are map order, overflow, concurrency and checkpoints, and each has a rule.</p>
+        <p>Two C++ nodes and one Rust node must compute the same vault and Yellowback state at every block. The Rust traps that threaten it are map order, overflow, concurrency and checkpoints, and each has a rule. Kogany is not yet a qualified Ycash node line.</p>
         <a class="more" href="/engineering/three-lines-one-state-hash/">Read about three node lines, one state hash</a>
       </div>
       <figure class="illus" aria-hidden="true"><svg viewBox="0 0 640 336">
@@ -22,7 +22,7 @@ description: The major engineering efforts inside Kogany — what each one chang
         <circle cx="470" cy="168" r="100" fill="#f7e3b4"/>
         <g font-family="Source Serif 4, Georgia, serif" font-size="17" fill="#f4efe4" text-anchor="middle">
           <rect x="60" y="70" width="150" height="54" rx="6" fill="#1b1a1e"/><text x="135" y="103">ycashd 4.5</text>
-          <rect x="60" y="141" width="150" height="54" rx="6" fill="#1b1a1e"/><text x="135" y="174">ycashd 6.20</text>
+          <rect x="60" y="141" width="150" height="54" rx="6" fill="#1b1a1e"/><text x="135" y="174">ycashd 6.22</text>
           <rect x="60" y="212" width="150" height="54" rx="6" fill="#1b1a1e"/><text x="135" y="245">kogany</text>
         </g>
         <g fill="none" stroke="#c8901e" stroke-width="2"><path d="M212 97 C320 97 330 168 410 168"/><path d="M212 168 H410"/><path d="M212 239 C320 239 330 168 410 168"/></g>
@@ -56,9 +56,9 @@ description: The major engineering efforts inside Kogany — what each one chang
     <li>
       <div>
         <div class="n">03</div>
-        <span class="label">Cryptography · in review</span>
+        <span class="label">Cryptography · in testing</span>
         <h2><a href="/announcements/post-quantum-vaults/">Post-Quantum Signatures in Script</a></h2>
-        <p>One opcode, <code>OP_CHECKPQSIG</code>, verifies SLH-DSA for vault owners and Falcon-512 for YED holders. Large keys are pushed in canonical 520-byte chunks, and verification uses the same vendored C code as the C++ nodes.</p>
+        <p>One opcode, <code>OP_CHECKPQSIG</code>, verifies two schemes: SLH-DSA-SHA2-128s and FN-DSA-512 (Falcon-512). Vault owners sign with SLH-DSA by default, YED holders with FN-DSA-512, and plain YEC can sit at a post-quantum address of either scheme, whose third character names it (<code>sqf…</code>, <code>sqs…</code>). Signatures and keys are pushed in canonical 520-byte chunks, and Kogany verifies with byte copies of the C++ nodes' vendored C.</p>
         <a class="more" href="/announcements/post-quantum-vaults/">Read about post-quantum signatures</a>
       </div>
       <figure class="illus dark" aria-hidden="true"><svg viewBox="0 0 640 336">
@@ -77,7 +77,7 @@ description: The major engineering efforts inside Kogany — what each one chang
         <div class="n">04</div>
         <span class="label">Wallet · in testing</span>
         <h2><a href="/yewd/">A Wallet Beside the Node</a></h2>
-        <p><code>ycashd</code> keeps its wallet inside the node; Kogany doesn't. <code>yewd</code> serves the same wallet RPCs from the YEW wallet core, and waits until it has caught up with the node before it answers.</p>
+        <p><code>ycashd</code> keeps its wallet inside the node; Kogany doesn't. <code>yewd</code> serves ycashd's wallet RPCs from the YEW wallet core, apart from a few listed exceptions such as the watch-only imports, and waits until it has caught up with the node before it answers. It has no release yet: it is built from source.</p>
         <a class="more" href="/yewd/">Read about yewd</a>
       </div>
       <figure class="illus" aria-hidden="true"><svg viewBox="0 0 640 336">
@@ -90,7 +90,7 @@ description: The major engineering efforts inside Kogany — what each one chang
         <g fill="none" stroke="#1b1a1e" stroke-width="1.5"><rect x="482" y="86" width="110" height="28" rx="14"/><rect x="482" y="156" width="110" height="28" rx="14"/><rect x="482" y="226" width="110" height="28" rx="14"/></g>
         <g font-family="IBM Plex Mono, monospace" font-size="11" fill="#1b1a1e" text-anchor="middle"><text x="537" y="104">YecWallet</text><text x="537" y="174">attestor</text><text x="537" y="244">x402</text></g>
         <text x="222" y="150" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="#9a6a12">RPC</text>
-        <text x="320" y="300" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" letter-spacing="1.5" fill="#9a6a12">THE SAME WALLET RPCS AS YCASHD</text>
+        <text x="320" y="300" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" letter-spacing="1.5" fill="#9a6a12">YCASHD'S WALLET RPCS, FROM YEW</text>
       </svg></figure>
     </li>
   </ol>
