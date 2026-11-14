@@ -488,3 +488,19 @@ html:not([data-js]) .snap-restore [data-only] { display: block; }
 .snap-verify > p { color: var(--text-muted); font-size: .92rem; }
 @media (max-width: 30rem) { .snap { padding: 1.2rem 1rem 1.3rem; } }
 /* ===== snapshots page: Kogany / Ycash6 tabs — end ===== */
+
+/* ===== download page: Kogany / Ycash6 tabs (reuses the snapshots tab classes) — begin ===== */
+.dl-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: .4rem 1rem; margin: 0 0 1rem; }
+.dl-top h3 { font: 600 1.35rem var(--font-serif); margin: 0; }
+.dl-top h3 a { color: var(--text-strong); text-decoration: underline 1px var(--accent); text-underline-offset: .2em; }
+.dl-top .snap-facts { margin: 0; }
+.dl-assets td { vertical-align: top; }
+.dl-assets td a { text-decoration: none; }
+.dl-assets td code { word-break: break-all; }
+.dl-assets td.r { white-space: nowrap; }
+.dl-panel .snap-restore { margin: 1.4rem 0 1rem; }
+.dl-panel .snap-note { margin: 0 0 1rem; }
+.dl-panel .snap-more { margin: 0 0 1.2rem; }
+.dl-panel .snap-more .code { margin: .8rem 0; }
+html[data-js] .dl-nojs { display: none; }
+/* ===== download page: Kogany / Ycash6 tabs — end ===== */
