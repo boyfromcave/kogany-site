@@ -90,6 +90,54 @@
     });
   }
 
+  // Tabs ([data-tabs], snapshots page). Without JavaScript every panel shows, one after another.
+  // The URL hash (a panel id, or one of its data-tab-alias ids) picks the tab.
+  function wireTabs() {
+    $$("[data-tabs]").forEach(function (box) {
+      var tabs = $$("[role=tab][aria-controls]", box);
+      var panels = tabs.map(function (t) { return document.getElementById(t.getAttribute("aria-controls")); });
+      panels.forEach(function (p, i) {
+        p.setAttribute("role", "tabpanel");
+        p.setAttribute("aria-labelledby", tabs[i].id);
+      });
+      function select(i, focus) {
+        tabs.forEach(function (t, j) {
+          t.setAttribute("aria-selected", i === j ? "true" : "false");
+          t.tabIndex = i === j ? 0 : -1;
+          panels[j].hidden = i !== j;
+        });
+        if (focus) tabs[i].focus();
+      }
+      function fromHash() {
+        var id = decodeURIComponent(location.hash.slice(1));
+        if (!id) return -1;
+        for (var i = 0; i < panels.length; i++) {
+          var aliases = (panels[i].dataset.tabAlias || "").split(" ");
+          if (panels[i].id === id || aliases.indexOf(id) >= 0) return i;
+        }
+        return -1;
+      }
+      function go(i) {
+        select(i, true);
+        if (history.replaceState) history.replaceState(null, "", "#" + panels[i].id);
+      }
+      tabs.forEach(function (t, i) {
+        t.addEventListener("click", function () { go(i); });
+        t.addEventListener("keydown", function (ev) {
+          var n = tabs.length;
+          var j = { ArrowRight: (i + 1) % n, ArrowLeft: (i + n - 1) % n, Home: 0, End: n - 1 }[ev.key];
+          if (j === undefined) return;
+          ev.preventDefault();
+          go(j);
+        });
+      });
+      window.addEventListener("hashchange", function () { var i = fromHash(); if (i >= 0) select(i, false); });
+      var start = fromHash();
+      select(start >= 0 ? start : 0, false);
+      if (start >= 0) box.scrollIntoView();
+    });
+  }
+
   // Dashboard. The feed (static/data/README.md) carries one entry per network.
   // Only status "live" clears the warning and enables the faucet and visualizer; any other
   // status (a dated snapshot) keeps the warning. Null values render as a dash, never a guess.
@@ -176,6 +224,6 @@
   }
 
   document.addEventListener("DOMContentLoaded", function () {
-    wireTheme(); wireNav(); wireCopy(); wireCommands(); wireDashboard();
+    wireTheme(); wireNav(); wireCopy(); wireCommands(); wireTabs(); wireDashboard();
   });
 })();
