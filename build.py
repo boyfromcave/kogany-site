@@ -38,9 +38,18 @@ NAV = [
     ("/vault/", "Vault", "Dashboard"),
     ("/download/", "Download", None),
     ("/snapshots/", "Snapshots", None),
+    ("/quantum/", "Post-quantum", None),
+    ("/yellowback/", "Yellowback", None),
     ("/announcements/", "Announcements", None),
     ("/engineering/", "Engineering", None),
     ("/about/", "About", None),
+]
+# Footer links: the reference pages people look for from anywhere on the site.
+FOOTER_NAV = [
+    ("/quantum/", "Post-quantum"),
+    ("/yellowback/", "Yellowback"),
+    ("/yellowback/audits/", "Audits"),
+    ("/yellowback/history/", "History"),
 ]
 MONTHS = "January February March April May June July August September October November December".split()
 
@@ -88,6 +97,7 @@ def layout(meta, body, url):
         cls = ' class="nav-dash"' if tag else ""
         extra = f'<span class="nav-tag">{tag}</span>' if tag else ""
         nav.append(f'<a href="{href}"{cls}{current}><span>{label}</span>{extra}</a>')
+    footer_nav = "".join(f'<a href="{href}">{label}</a>' for href, label in FOOTER_NAV)
     return f"""<!doctype html>
 <html lang="en">
 <head>
@@ -128,6 +138,7 @@ def layout(meta, body, url):
   <div class="container">
     <a href="{REPO}" rel="noopener"><svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38v-1.49c-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48v2.2c0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg><span>boyfromcave/kogany</span></a>
     <a href="https://y.cash/" rel="noopener"><img src="/assets/ycash-logo.svg" alt="" width="16" height="16"><span>ycash</span></a>
+    <nav class="footer-nav" aria-label="Reference">{footer_nav}</nav>
     <div class="trailer">
       {mark("colophon")}
       <button class="theme-toggle" type="button" aria-label="Switch theme" data-theme-toggle hidden>
