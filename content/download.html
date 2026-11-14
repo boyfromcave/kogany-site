@@ -1,50 +1,65 @@
 <!--
 title: Download
-description: How to get Kogany — building from source, release binaries once they exist, and verifying downloads by maintainer signature and build provenance.
+description: How to get Kogany — the koganyd v1.8.0-ycash.beta2 pre-release binaries, building from source at the tag, and verifying downloads by checksum, cosign signature and build provenance.
 -->
 <div class="container">
   <header class="page-head">
     <h1>Download</h1>
-    <p class="lede">How to get Kogany: building from source today and, once releases exist, installing with Cargo, release binaries, and verifying downloads by maintainer signature and build provenance.</p>
+    <p class="lede">How to get Kogany: the current pre-release's binaries for Linux and macOS, a source build at its tag, and how to verify a download by checksum, cosign signature and build provenance.</p>
   </header>
   <div class="column prose section-end">
     <section class="panel">
-      <span class="label">Latest release</span>
-      <p class="big">none yet <small>pre-release</small></p>
-      <p>Kogany has no release. It becomes a release line only after the full three-node test at the end of wave W9, by explicit sign-off. The <a href="https://github.com/boyfromcave/kogany" rel="noopener">source code</a> is on GitHub.</p>
+      <span class="label">Latest pre-release</span>
+      <p class="big">koganyd v1.8.0-ycash.beta2 <small>pre-release · 13 Nov 2026</small></p>
+      <p>Kogany, the Ycash node on Zakura, with the vault network upgrade and the Ycash Yellowback (YED) rule module. <a href="https://github.com/boyfromcave/kogany/releases/tag/v1.8.0-ycash.beta2" rel="noopener">Release notes and downloads</a> on GitHub. It follows the previous pre-release, <a href="https://github.com/boyfromcave/kogany/releases/tag/v1.8.0-ycash.beta1" rel="noopener">v1.8.0-ycash.beta1</a> (5 Nov 2026).</p>
     </section>
-    <section class="panel">
-      <span class="label">Release signing key</span>
-      <p>Each release's <code>SHA256SUMS.txt</code> will be signed by a Kogany maintainer key. The public key is published here with the first release; until then, no key is valid.</p>
-      <div class="keybox placeholder">published with the first release</div>
-    </section>
+    <div class="notice"><p><strong>Pre-release, for testing.</strong> Kogany is not yet a qualified Ycash node line. Run it on the Ycash testnets, and expect resyncs and breaking changes between pre-releases. No activation height for the vault upgrade is set on mainnet.</p></div>
+
+    <h2>Release binaries</h2>
+    <p>The release publishes <code>koganyd</code> for three platforms, each with an SPDX software bill of materials. The Linux builds ship their debug info separately: put <code>koganyd.debug</code> beside <code>koganyd</code> to get file and line numbers in backtraces.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Platform</th><th>Archive</th><th>Also attached</th></tr></thead>
+      <tbody>
+        <tr><td>Linux x86_64</td><td><code>koganyd_v1.8.0-ycash.beta2_linux-x86_64.tar.gz</code></td><td><code>…_linux-x86_64.debug.tar.gz</code>, <code>…_linux-x86_64.spdx.json</code></td></tr>
+        <tr><td>Linux aarch64</td><td><code>koganyd_v1.8.0-ycash.beta2_linux-aarch64.tar.gz</code></td><td><code>…_linux-aarch64.debug.tar.gz</code>, <code>…_linux-aarch64.spdx.json</code></td></tr>
+        <tr><td>macOS aarch64 (Apple silicon)</td><td><code>koganyd_v1.8.0-ycash.beta2_macos-aarch64.tar.gz</code></td><td><code>…_macos-aarch64.spdx.json</code></td></tr>
+        <tr><td>All</td><td><code>SHA256SUMS</code></td><td><code>SHA256SUMS.cosign.bundle</code></td></tr>
+      </tbody>
+    </table></div>
+    <p class="muted small">No Windows or Intel macOS build. The Linux builds need glibc 2.39 (Ubuntu 24.04 or newer). The <a href="https://github.com/boyfromcave/kogany/releases" rel="noopener">GitHub releases page</a> is the only official channel: a Kogany binary offered anywhere else is not from this project.</p>
+
+    <h2>Verifying a download</h2>
+    <p>Verification has three parts: your downloads against <code>SHA256SUMS</code>, the cosign signature over <code>SHA256SUMS</code>, and the GitHub build attestation proving the release workflow built each asset from the repository. The cosign signature is keyless: its identity is the tag-push run of <code>kogany-release.yml</code> that built these assets, so a rebuild means a new tag.</p>
+    <div class="code"><div class="code-bar"><span class="file">Linux x86_64 shown; use your platform's archive</span><span class="spacer"></span><button class="copy-btn" type="button" data-copy-target="verify">Copy</button></div>
+<pre id="verify"><span class="k">gh</span> release download v1.8.0-ycash.beta2 -R boyfromcave/kogany
+<span class="k">sha256sum</span> -c SHA256SUMS --ignore-missing   <span class="c"># macOS: shasum -a 256 -c SHA256SUMS --ignore-missing</span>
+<span class="k">cosign</span> verify-blob --bundle <span class="s">SHA256SUMS.cosign.bundle</span> \
+  --certificate-identity <span class="s">https://github.com/boyfromcave/kogany/.github/workflows/kogany-release.yml@refs/tags/v1.8.0-ycash.beta2</span> \
+  --certificate-oidc-issuer <span class="s">https://token.actions.githubusercontent.com</span> SHA256SUMS
+<span class="k">gh</span> attestation verify <span class="s">koganyd_v1.8.0-ycash.beta2_linux-x86_64.tar.gz</span> -R boyfromcave/kogany</pre></div>
+    <p>Expect <code>OK</code> for each file you downloaded, <code>Verified OK</code> from cosign, and a passing attestation. <code>gh attestation verify</code> also checks an SBOM or <code>SHA256SUMS</code> itself. If any check fails, delete the download and <a href="https://github.com/boyfromcave/kogany/issues" rel="noopener">report it</a>.</p>
+    <p class="muted small">Kogany pre-releases are signed with cosign, not with the Ycash release minisign key. That key (id <code>02C923A6C593AF18</code>) signs the <a href="/snapshots/">mainnet snapshots</a>.</p>
+
+    <h2>Running on the fast testnet</h2>
+    <p>With no testnet peers built in, name a seed. <code>network = "Testnet"</code> is the fast testnet (testnet-yb-fast); <code>"TestnetSlow"</code> and <code>"TestnetLegacy"</code> select the two shadow forks of mainnet.</p>
+    <div class="code"><div class="code-bar"><span class="file">testnet.toml</span><span class="spacer"></span><button class="copy-btn" type="button" data-copy-target="run">Copy</button></div>
+<pre id="run"><span class="k">tar</span> xzf koganyd_v1.8.0-ycash.beta2_linux-x86_64.tar.gz <span class="k">&amp;&amp;</span> <span class="k">cd</span> koganyd_v1.8.0-ycash.beta2_linux-x86_64
+<span class="k">printf</span> <span class="s">'[network]\nnetwork = "Testnet"\nlisten_addr = "[::]"\ninitial_testnet_peers = ["fastnet-seed.ycash.team:18833"]\n\n[rpc]\nlisten_addr = "127.0.0.1:18832"\n'</span> &gt; testnet.toml
+./koganyd -c testnet.toml start</pre></div>
+    <p>Ports: mainnet 8833, RPC 8832; fast testnet 18833 / 18832; slow testnet 18933 / 18932. Each archive's <code>README.txt</code> has the details. <code>koganyd</code> has no wallet: the wallet is <a href="/yewd/"><code>yewd</code></a>, built from source.</p>
 
     <h2>Building from source</h2>
-    <p>Developers can build the integration branch now. The <code>ycash</code> cargo feature selects the Ycash network; without it the binary behaves like upstream Zakura on Zcash networks.</p>
+    <p>Build the tag. <code>koganyd</code> is the <code>kogany</code> package's <code>ycash</code> build; without the feature, the build gives upstream Zakura's Zcash node and no <code>koganyd</code>.</p>
     <div class="code"><div class="code-bar"><span class="spacer"></span><button class="copy-btn" type="button" data-copy-target="src">Copy</button></div>
 <pre id="src"><span class="k">git</span> clone https://github.com/boyfromcave/kogany
-<span class="k">cd</span> kogany <span class="k">&amp;&amp;</span> <span class="k">git</span> checkout upgrade/vault
-<span class="k">cargo</span> build --release --locked --features ycash</pre></div>
-    <p>Until wave W1 lands, a <code>ycash</code> build won't sync the Ycash chain. For a node that runs today, use <code>ycashd</code> 6.22.x.</p>
+<span class="k">cd</span> kogany <span class="k">&amp;&amp;</span> <span class="k">git</span> checkout v1.8.0-ycash.beta2
+<span class="k">cargo</span> build --release --locked -p kogany --bin koganyd --features ycash</pre></div>
+    <p>The integration branch, <code>upgrade/vault</code>, builds the same way and runs ahead of the latest pre-release.</p>
 
     <h2>Installing with Cargo</h2>
-    <p class="muted">Planned. Once a release is published to crates.io, this will be the recommended route:</p>
-    <div class="code"><div class="code-bar"><span class="file">not available yet</span><span class="spacer"></span></div>
-<pre><span class="k">cargo</span> install --locked kogany</pre></div>
+    <p class="muted">Not available. Kogany is not published to crates.io: its Ycash crates come from a fork pinned by git revision, so build from the tagged source above.</p>
 
     <h2>Using the interactive installer</h2>
     <p class="muted">Planned: a script pinned to each release, with its checksums, covering standard Kogany, the <a href="/yewd/"><code>yewd</code></a> wallet sidecar, Docker and source builds.</p>
-
-    <h2>Release binaries</h2>
-    <p>Each release will publish prebuilt binaries and a source tarball on <a href="https://github.com/boyfromcave/kogany/releases" rel="noopener">GitHub</a>. A release workflow builds from a tag and refuses a tag whose version doesn't match its line or whose upgrade heights are unset. The channels listed on this page will be the only official ones. A Kogany binary offered anywhere else is not from this project.</p>
-
-    <h2>Verifying releases</h2>
-    <p>Verification has three parts: the maintainer signature over <code>SHA256SUMS.txt</code>, your downloads against that file, and the GitHub build attestation proving CI built each asset from the repository. Once a release exists, the full commands will be:</p>
-    <div class="code"><div class="code-bar"><span class="spacer"></span><button class="copy-btn" type="button" data-copy-target="verify">Copy</button></div>
-<pre id="verify"><span class="k">gh</span> release download -R boyfromcave/kogany
-<span class="k">minisign</span> -Vm <span class="s">SHA256SUMS.txt</span> -P <span class="s">&lt;key published above&gt;</span>
-<span class="k">sha256sum</span> -c --ignore-missing <span class="s">SHA256SUMS.txt</span>   <span class="c"># macOS: shasum -a 256 -c --ignore-missing SHA256SUMS.txt</span>
-<span class="k">gh</span> attestation verify <span class="s">&lt;binary&gt;</span> --repo boyfromcave/kogany</pre></div>
-    <p>Expect a valid signature, <code>OK</code> for each binary, and a passing attestation. If any check fails, delete the download and <a href="https://github.com/boyfromcave/kogany/issues" rel="noopener">report it</a>.</p>
   </div>
 </div>

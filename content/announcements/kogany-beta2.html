@@ -1,0 +1,17 @@
+<!--
+title: Kogany v1.8.0-ycash.beta2 pre-release
+description: The second koganyd pre-release follows Ycash mainnet and the fast testnet through the Vault activation, with Ycash's block time bounds and post-quantum addresses that name their scheme.
+date: 2026-11-13
+banner: beta2 | pre-release
+-->
+<p><strong>koganyd v1.8.0-ycash.beta2</strong> is out: Kogany, the Ycash node on Zakura, with the vault network upgrade and the Ycash Yellowback (YED) rule module. Binaries for Linux (x86_64, aarch64) and macOS (Apple silicon) are on the <a href="https://github.com/boyfromcave/kogany/releases/tag/v1.8.0-ycash.beta2" rel="noopener">release page</a>; the <a href="/download/">download page</a> shows how to verify them.</p>
+<p><strong>It is a pre-release, for testing.</strong> Kogany is not yet a qualified Ycash node line. Run it on the Ycash testnets and expect resyncs and breaking changes between pre-releases. No activation height for the vault upgrade is set on mainnet.</p>
+<h2>What changed since beta1</h2>
+<ul>
+  <li><strong>Ycash's block time bounds.</strong> beta1 carried Zcash's bounds and rejected valid Ycash blocks. beta2 enforces Ycash's (10,800 s past the median time of the previous 11 blocks, 14,400 s past the node's clock). It follows the fast testnet through the Vault activation at 510,400 with <code>ycashd</code>'s block hashes, and validates mainnet from the Canopy checkpoint to 3,097,335 with <code>ycashd</code>'s tip and value pools.</li>
+  <li><strong>Post-quantum addresses name their scheme</strong> in the third character (<code>sqf…</code> / <code>sqs…</code> for YEC, <code>ybf…</code> / <code>ybs…</code> for YED on mainnet), and <code>rpcversion</code> is 9.</li>
+  <li><strong>Testnet profiles:</strong> <code>"Testnet"</code> is the fast testnet; <code>"TestnetSlow"</code> and <code>"TestnetLegacy"</code> select the two shadow forks of mainnet.</li>
+  <li><strong>Smaller Linux downloads:</strong> debug info ships as a separate archive.</li>
+</ul>
+<h2>The wallet</h2>
+<p><code>koganyd</code> has no wallet of its own. <a href="/yewd/"><code>yewd</code></a> is the wallet in front of it, built from source in this wave. The release notes list where it still differs from <code>ycashd</code>'s wallet.</p>
