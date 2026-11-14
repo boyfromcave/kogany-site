@@ -8,10 +8,13 @@ date: 2026-11-01
 <p>A vault act can depend on an earlier act in the same block: a signer set changes its members, then a vault under that set is released. Checked in parallel, the second act would see the wrong set. The rules also include per-block rate limits and liveness counters, which only mean something when acts are counted in order.</p>
 <h2>What Kogany does</h2>
 <ul>
-  <li><strong>Scripts stay parallel.</strong> Signature checks, including the post-quantum ones, still run concurrently. They read a <em>snapshot</em> of the parent block's vault state, which the verifier waits for the same way Zakura already waits for other block information.</li>
-  <li><strong>Acts run in sequence</strong> in contextual validation, applying a vault delta to the non-finalized state in transaction order.</li>
+  <li><strong>Scripts stay parallel.</strong> Signature checks, including the post-quantum ones, still run concurrently. They read a <em>snapshot</em> of the parent block's vault state, fetched once per block and shared by every script, which the verifier waits for the same way Zakura already waits for other block information.</li>
+  <li><strong>Acts run in sequence</strong> in contextual validation, applying a vault delta to the non-finalized state in transaction order. A block that breaks a vault rule is rejected there with ban score 100.</li>
   <li><strong>The snapshot follows forks.</strong> It is keyed by the parent block's hash, not its height, so a reorganization never feeds one chain's state into another.</li>
-  <li><strong>Every commit path computes deltas</strong>, including checkpointed blocks, and checkpoints stop before the vault epoch.</li>
+  <li><strong>Every commit path computes deltas</strong>, including checkpointed blocks, and no checkpoint list reaches the vault epoch.</li>
+  <li><strong>The mempool checks too.</strong> The harness found that Kogany's mempool admitted a vault transaction ycashd refuses, because the vault rules ran only in block validation. The mempool now runs them over the tip's snapshot as well.</li>
 </ul>
+<h2>Where it stands</h2>
+<p>This work merged in wave W4 on 2026-11-02 and ships in koganyd v1.8.0-ycash.beta2. The mixed vault scripts (<code>vault_primitive</code>, <code>vault_slashing</code>, <code>vault_dos</code>, <code>vault_undo_prune</code>, <code>vault_pq_reorg</code>) pass with the vault state hash equal to ycash6's at every sync point.</p>
 <h2>The cost</h2>
-<p>Waiting for the parent snapshot serializes part of the work on blocks after Vault activates. We don't yet know how much that costs, so it is one of the measurements in wave W4.</p>
+<p>Waiting for the parent snapshot serializes part of the work on blocks after Vault activates. W4 merged without measuring how much, and beta2 has no measurement either, so the cost is still open.</p>
