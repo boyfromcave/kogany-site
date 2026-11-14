@@ -3,15 +3,27 @@ title: Three node lines, one state hash
 description: How Kogany is held to byte-for-byte agreement with the two C++ ycashd lines, and the Rust traps that threaten it.
 date: 2026-11-01
 -->
-<p>The vault upgrade adds state that every node must track identically: signer sets, vaults, Yellowback positions, attested prices. Each C++ node folds that state into one <code>statehash</code> per block. Kogany has to produce the same bytes.</p>
+<p>The vault upgrade adds state that every node must track identically: signer sets, vaults, Yellowback positions, attested prices. Each C++ node line (ycash-dd, the ycashd 4.5.0 reference line, and ycash6, the ycashd 6.20.0 line released as 6.22.0-beta2) folds that state into two hashes per block: <code>vault_getinfo.statehash</code> for the vault primitive and <code>yed_getstatehash</code> for the Yellowback module. Kogany has to produce the same bytes.</p>
 <h2>The encoder is separate from the database</h2>
 <p>Kogany stores state in Zakura's own database layout, which differs from <code>ycashd</code>'s. So the canonical preimage encoder is written apart from storage, following the published serialization rules rather than either node's on-disk format. Storage can change; the hash can't.</p>
 <h2>Where Rust differs</h2>
 <ul>
-  <li><strong>Map order.</strong> A <code>HashMap</code> iterates in random order, while the C++ nodes iterate ordered maps. Kogany uses <code>BTreeMap</code> wherever order reaches the hash.</li>
+  <li><strong>Map order.</strong> A <code>HashMap</code> iterates in random order, while the C++ nodes iterate ordered maps. Kogany uses <code>BTreeMap</code> wherever order reaches the hash, and clippy refuses <code>HashMap</code> in the vault and Yellowback crates.</li>
   <li><strong>Overflow.</strong> Release builds wrap on integer overflow. Consensus arithmetic uses <code>checked_*</code> and 128-bit intermediates only, and the math test cases run in release builds as well as debug.</li>
   <li><strong>Concurrency.</strong> Zakura verifies the transactions in a block concurrently. Vault acts must be applied in order, so they run in contextual validation against a snapshot of the parent block's state.</li>
-  <li><strong>Checkpoints.</strong> Zakura commits checkpointed blocks without contextual checks. Kogany computes vault deltas on every commit path, and its checkpoints stop before the vault epoch.</li>
+  <li><strong>Checkpoints.</strong> Zakura commits checkpointed blocks without contextual checks. Kogany computes vault deltas on every commit path, and a test asserts that no network's checkpoint list reaches the vault epoch. On the fast testnet the checkpoints end at block 510,253, before the Vault activation at 510,400.</li>
 </ul>
-<h2>The test</h2>
-<p>On one devnet, all three nodes mine and relay together. Every 100 blocks a harness compares their state hashes, and any disagreement fails the run. The same golden vectors, generated once from the C++ lines, are replayed in Kogany's unit tests.</p>
+<h2>The tests</h2>
+<ul>
+  <li><strong>Golden vectors.</strong> The vector files, generated once from the C++ lines, are replayed in Kogany's unit tests, and the Yellowback golden chain's pinned state hash must match.</li>
+  <li><strong>Mixed-line suite.</strong> The unchanged Yellowback functional scripts run on ycash6 with a Kogany node following each one. At every sync point the harness compares tips and both state hashes, and the YED hash also against the Python reference model. In the last recorded run (2026-11-02), 51 of the 58 scripts passed twice in a row; six of the other seven build regtest chains that Kogany cannot follow by design.</li>
+  <li><strong>Devnet rounds.</strong> On one devnet, ycash6 nodes mine while ycash-dd and Kogany nodes follow. At every 100th block a harness compares block hashes and both state hashes. Kogany's column ran five rounds (heights 300 to 700) with no disagreement. The ycash6 v6.22.0-beta2 qualification ran the ycash-dd column: identical state hashes.</li>
+  <li><strong>Real chains.</strong> koganyd v1.8.0-ycash.beta2 follows the fast testnet through the Vault activation at 510,400 with ycashd's block hashes and the same <code>vault_getinfo</code> answer, and validates Ycash mainnet from the Canopy checkpoint (1,100,006) to 3,097,335 with ycashd's tip and value pools.</li>
+</ul>
+<h2>What beta2 found</h2>
+<p>The state hash covers vault and Yellowback state only. Two splits found in the beta2 run were in block validity, which the state hash can't see; both are fixed in beta2:</p>
+<ul>
+  <li><strong>Block time bounds.</strong> Kogany beta1 carried Zcash's bounds (5,400 s past the median time, 7,200 s past the clock) instead of Ycash's (10,800 s and 14,400 s). It rejected fast-testnet block 510,256 and 51 mainnet blocks from height 974,995 on.</li>
+  <li><strong>Canonical Jubjub encodings (ZIP-216).</strong> ycash6 and Kogany rejected non-canonical encodings in Sapling signatures and coinbase outputs; ycash-dd accepted them, so one such transaction could have split the lines. ycash-dd now rejects them at every height. No existing block on mainnet or the fast testnet is affected.</li>
+</ul>
+<p>Kogany is not yet a qualified Ycash node line: that is the Yellowback lead architect's decision at the end of its plan. Until then, run koganyd on the Ycash testnets only.</p>

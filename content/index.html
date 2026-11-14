@@ -8,6 +8,7 @@ description: Kogany is a Ycash full node written in Rust, built on Zakura, and t
     <p class="eyebrow">Ycash full node</p>
     <a class="brand" href="/"><img class="logo" src="/assets/kogany-flower-640.webp" alt="" width="640" height="640"><span class="wordmark">Kogany</span></a>
     <h1 class="tagline"><span>A Rust full node for Ycash.</span> <span>Built for post-quantum vaults.</span></h1>
+    <p class="pq-line"><span class="tag ok">Live on testnet</span> <a href="/quantum/">Quantum-resistant addresses</a>, FN-DSA-512 (Falcon) and SLH-DSA, are active on the public fast testnet since block 510,400. Mainnet activation is not scheduled yet.</p>
     <div class="actions">
       <a class="button" href="/download/">Get started</a>
       <span class="badge"><img class="badge-mark" src="/assets/kogany-flower-160.webp" alt="" width="160" height="160">Latest pre-release: <b>v1.8.0-ycash.beta2</b></span>
@@ -20,29 +21,41 @@ description: Kogany is a Ycash full node written in Rust, built on Zakura, and t
     <p>It is built by the Ycash developers as the third node line beside <code>ycashd</code> 4.5 and 6.20. <a href="/about/">Meet the team.</a></p>
   </div>
   <section class="features" aria-label="Why run Kogany">
-    <article>
+    <article class="feature-pq">
       <div class="num">01</div>
+      <h2>Quantum-resistant addresses</h2>
+      <p>The vault upgrade adds addresses signed with FN-DSA-512 (Falcon) or SLH-DSA-SHA2-128s, two schemes from NIST's post-quantum standardization. They work for plain YEC, vault owners and YED, and the prefix names the scheme: <code>sqf…</code> or <code>sqs…</code> on mainnet, <code>tqf…</code> or <code>tqs…</code> on testnet. Live on the fast testnet since block 510,400.</p>
+      <a class="more" href="/quantum/">Post-quantum reference</a>
+    </article>
+    <article>
+      <div class="num">02</div>
       <h2>Independent check</h2>
       <p>A second codebase, in a second language, has to reach the same vault state hash as the C++ nodes at every block.</p>
       <a class="more" href="/engineering/three-lines-one-state-hash/">How it works</a>
     </article>
     <article>
-      <div class="num">02</div>
+      <div class="num">03</div>
       <h2>Fast bootstrap</h2>
       <p>Signed mainnet snapshots for Kogany and <code>ycashd</code> let a new node start in minutes instead of syncing from genesis.</p>
       <a class="more" href="/snapshots/">Get a snapshot</a>
     </article>
     <article>
-      <div class="num">03</div>
+      <div class="num">04</div>
       <h2><code>ycashd</code> wallet RPCs</h2>
       <p>For software that speaks to <code>ycashd</code>'s wallet, <code>yewd</code> serves the same RPCs beside the node.</p>
       <a class="more" href="/yewd/">Learn more</a>
     </article>
     <article>
-      <div class="num">04</div>
+      <div class="num">05</div>
       <h2>Vaults and Yellowback</h2>
       <p>Post-quantum vaults checked by every node, and a dollar, YED, backed by YEC locked in them.</p>
       <a class="more" href="/yellowback/">Read the overview</a>
+    </article>
+    <article>
+      <div class="num">06</div>
+      <h2>Audits and history</h2>
+      <p>Each security review of the vault upgrade and Yellowback with its scope and outcome, what remains before mainnet, a dated history, and the code and developer resources.</p>
+      <p class="feature-links"><a class="more" href="/yellowback/audits/">Audits</a> <a class="more" href="/yellowback/history/">History</a> <a class="more" href="/yellowback/resources/">Resources</a></p>
     </article>
   </section>
 </div>
