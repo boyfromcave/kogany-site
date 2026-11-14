@@ -1,50 +1,26 @@
 <!--
 title: Snapshots
-description: Ycash mainnet state snapshots, one set for Kogany (koganyd) and one for ycashd 6.22.x, for bootstrapping a node from a recent block height instead of syncing from genesis, signed with the Ycash release key.
+description: Signed Ycash mainnet state snapshots for Kogany (koganyd) and Ycash6 (ycashd 6.22.x), to start a node at a recent height instead of genesis.
 -->
 <div class="container">
   <header class="page-head">
     <h1>Snapshots</h1>
-    <p class="lede">Ycash mainnet state snapshots for bootstrapping a node from a recent block height instead of syncing from genesis. A snapshot is made by one node program and restores into that program only: pick the set for the node you run.</p>
-    <ul class="snap-jump">
-      <li><a href="#kogany"><b>For Kogany</b> <code>koganyd</code></a> <span>Kogany state database, pruned or archive</span></li>
-      <li><a href="#ycashd"><b>For ycashd 6.22.x</b> <code>ycashd</code></a> <span>ycashd datadir, with or without the explorer indexes</span></li>
-    </ul>
+    <p class="lede">Start a node at a recent mainnet height instead of genesis. Each snapshot restores only into the node that made it.</p>
   </header>
 
   {{ snapshot_notice }}
 
-  {{ snapshot_groups }}
+  <div class="snap-tabs" data-tabs>
+    <div class="snap-tablist" role="tablist" aria-label="Node">{{ snapshot_tabs }}</div>
+    {{ snapshot_panels }}
+  </div>
 
-  <section class="split" aria-label="Before you restore">
-    <aside>
-      <h2>Before you restore</h2>
-      <p>Each card's restore steps fetch the latest manifest, then that height's files. Check the <code>SHA256SUMS</code> signature against the Ycash release key, check every file against <code>SHA256SUMS</code>, and unpack the state. A pruned Kogany snapshot needs the node set to pruned mode first.</p>
-      <p>Needs <a href="https://jqlang.github.io/jq/" rel="noopener">jq</a> and <a href="https://jedisct1.github.io/minisign/" rel="noopener">minisign</a>. <a href="https://aria2.github.io/" rel="noopener">aria2</a> downloads in parallel and checks the checksum as it goes; use the curl tab if it isn't installed.</p>
-    </aside>
-    <div class="main">
-      <div class="panel">
-        <span class="label accent">Release signing key</span>
-        <h3>Ycash release key <code>{{ key_id }}</code></h3>
-        <p>Every snapshot's <code>SHA256SUMS</code>, for Kogany and for ycashd alike, is signed with the Ycash release key, in <code>SHA256SUMS.minisig</code> beside it. Check the signature before you check the files: the signature proves the holder of the release key published the checksum list, and the checksum list then vouches for every file. The public key is:</p>
-        <div class="code"><div class="code-bar"><span class="file">ycash-release.pub · key id {{ key_id }}</span><span class="spacer"></span><button class="copy-btn" type="button" data-copy-target="relkey">Copy</button></div>
+  <section class="snap-verify" aria-labelledby="verify">
+    <h2 id="verify">Release key</h2>
+    <p>Every <code>SHA256SUMS</code> is signed with the Ycash release key; the restore steps check it.</p>
+    <div class="code"><div class="code-bar"><span class="file">ycash-release.pub · key id {{ key_id }}</span><span class="spacer"></span><button class="copy-btn" type="button" data-copy-target="relkey">Copy</button></div>
 <pre id="relkey">{{ key_public }}</pre></div>
-        <p class="small muted">Also as a file: <a href="/keys/ycash-release.pub">ycash-release.pub</a>, for <code>minisign -Vm SHA256SUMS -p ycash-release.pub</code>. The first line of the key and of every <code>.minisig</code> names the key id; they must match. A signature from any other key is not a release signature.</p>
-      </div>
-
-      <div class="panel">
-        <h3>What a snapshot asks you to trust</h3>
-        <p>A node restored from a snapshot trusts the publisher for the state at that height. Syncing from the network keeps a node fully self-validating. Every snapshot is taken from a stopped node at an exact height and packed reproducibly. Each Kogany manifest records whether the <code>ycashd</code> snapshot at the same height names the same block. A <code>ycashd</code> node can recheck everything with <code>-reindex-chainstate</code>, which rebuilds its state from the snapshot's own blocks without downloading them again.</p>
-        <p>A Kogany snapshot is valid only for its state format (30.2.0). A Kogany build with a different format version ignores it and syncs from genesis. A pruned snapshot restores only into a node configured for pruned mode with <code>tx_retention</code> of at least 10,000 blocks, and the switch is one-way. An archive snapshot restores into either mode.</p>
-      </div>
-    </div>
-  </section>
-
-  <section class="split" aria-label="All snapshots">
-    <aside><h2>All snapshots</h2><p>The tip, plus fixed heights at Ycash's epoch boundaries, where the node lines are compared block for block.</p></aside>
-    <div class="main">
-      <div class="all-snaps snap-lists">{{ snapshot_lists }}</div>
-      <p class="raw"><b>Raw data</b> — {{ snapshot_raw }}</p>
-    </div>
+    <p class="small muted"><a href="{{ key_file }}">ycash-release.pub</a> · needs <a href="https://jqlang.github.io/jq/" rel="noopener">jq</a> and <a href="https://jedisct1.github.io/minisign/" rel="noopener">minisign</a>; <a href="https://aria2.github.io/" rel="noopener">aria2</a> optional.</p>
+    <p class="small muted">A restored node trusts the publisher for the state at that height; a sync from genesis checks everything itself.</p>
   </section>
 </div>
