@@ -1,0 +1,26 @@
+<!--
+title: Kogany @KOGANY_TAG@ pre-release
+description: The third koganyd pre-release adds the chain's transparent value pools by address type, a coinbase for each miner's own address, Sapling coinbases, JSON-RPC 1.0 batches and ycashd's limit on deep reorganisations.
+date: YYYY-MM-DD
+banner: beta3 | pre-release
+-->
+<p><strong>koganyd @KOGANY_TAG@</strong> is out: Kogany, the Ycash node on Zakura, with the vault network upgrade and the Ycash Yellowback (YED) rule module. Binaries for Linux (x86_64, aarch64) and macOS (Apple silicon) are on the <a href="https://github.com/boyfromcave/kogany/releases/tag/@KOGANY_TAG@" rel="noopener">release page</a>; the <a href="/download/">download page</a> shows how to verify them.</p>
+<p><strong>It is a pre-release, for testing.</strong> Kogany is not yet a qualified Ycash node line. Run it on the Ycash testnets and expect resyncs and breaking changes between pre-releases. No activation height for the vault upgrade is set on mainnet.</p>
+<h2>What you must do when upgrading</h2>
+<ul>
+  <li><strong>Allow a minute or two for the first start.</strong> It upgrades the database once, from state format 30.2.0 to 30.3.0. The node serves no RPC until it is done, and an interrupted start continues where it stopped. The step is one-way, but a beta2 <code>koganyd</code> still opens the upgraded database.</li>
+  <li><strong>On the fast testnet, upgrade before the development fund's mandate ends there.</strong> The height is set when the release candidate is cut, and the release notes name it. From that height a block without the fund output is valid, and an older node rejects it and leaves the chain. Mainnet and the slow and legacy testnets are unchanged.</li>
+  <li><strong>Clients:</strong> <code>rpcversion</code> is 10 (it was 9). A client that requires exactly 9 must accept 10.</li>
+  <li><strong>Miners:</strong> the development-fund donation now defaults to 0 %. To keep donating after the mandate, set <code>ydf = 5</code> under <code>[mining]</code>.</li>
+  <li><strong>Explorer nodes:</strong> set <code>[rpc] insight_explorer = true</code> for <code>ycashd</code>'s <code>-insightexplorer</code> input fields and <code>blockfee</code>. It is off by default; keep it off where untrusted clients reach the RPC port.</li>
+</ul>
+<h2>What changed since beta2</h2>
+<ul>
+  <li><strong>Value pools by address type.</strong> <code>getblockchaininfo</code> and <code>getblock</code> answer <code>transparentPools</code> beside <code>valuePools</code>, and <code>getblockchaininfo</code> answers the chain's <code>transactions</code> count. Where the node does not know a figure it says so (<code>monitored: false</code>) instead of guessing.</li>
+  <li><strong>A coinbase for each miner's own address.</strong> <code>getcoinbasetemplatefor</code> builds the coinbase for a transparent, Sapling or post-quantum miner address, so a pool can pay each miner the block reward and every fee at its own address. A Sapling coinbase needs <code>sapling-output.params</code>, read at start from <code>~/.zcash-params</code> or <code>mining.sapling_output_params</code>.</li>
+  <li><strong>Deep reorganisations.</strong> Like <code>ycashd</code>, <code>koganyd</code> refuses a reorganisation deeper than 99 blocks: it stops, and stays stopped across restarts until an operator removes the record it writes.</li>
+  <li><strong>JSON-RPC 1.0 batches</strong>, as block explorers send them, get one answer per request, as on <code>ycashd</code>.</li>
+  <li><strong>Builders:</strong> the Rust toolchain is pinned at 1.100.0.</li>
+</ul>
+<h2>The wallet</h2>
+<p><code>koganyd</code> has no wallet of its own. <a href="/yewd/"><code>yewd</code></a> is the wallet in front of it, built from source. The release notes list where it still differs from <code>ycashd</code>'s wallet.</p>
