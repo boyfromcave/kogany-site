@@ -76,6 +76,17 @@ def gib(n):
     return f"{n / 2**30:.1f} GiB" if isinstance(n, int) else None
 
 
+def free_needed(m):
+    """The facts row's disk figure for a manifest that states unpacked_bytes: what ycash-bootstrap
+    checks before it starts (the datadir, one part and its 1 GiB working margin), and what the steps
+    by hand need (the datadir plus the whole snapshot, every part on disk before it is joined)."""
+    unpacked, size = m.get("unpacked_bytes"), m.get("bytes")
+    if not all(isinstance(v, int) and not isinstance(v, bool) for v in (unpacked, size)):
+        return None
+    part = m.get("part_bytes") if isinstance(m.get("part_bytes"), int) else size
+    return f"needs {gib(unpacked + min(part, size) + 2**30)} free (by hand {gib(unpacked + size)})"
+
+
 def e(v):
     return html.escape(str(v)) if v not in (None, "") else "—"
 
@@ -100,6 +111,14 @@ def retention(m):
     return None
 
 
+def stored(m):
+    """The objects that hold the stream: a ycash-state/3 bundle's parts, else the one tarball."""
+    parts = m.get("parts") if m.get("format") == "ycash-state/3" else None
+    if isinstance(parts, list) and parts and all(isinstance(x, dict) and isinstance(x.get("name"), str) for x in parts):
+        return [x["name"] for x in parts]
+    return [m["tarball"]]
+
+
 def card(cfg, data, fam, m, base, group):
     """One snapshot: title, one line, a facts row, the restore steps, one note, then the rest
     folded into "More about this snapshot"."""
@@ -108,9 +127,14 @@ def card(cfg, data, fam, m, base, group):
     more = [("Contains", fam.get("contains"))]
     if m:
         height = f"Block {m['height']:,}"
-        url = f"{base}/{fam['dir']}/{m['height']}/{m['tarball']}"
-        facts = [gib(m.get("bytes")), m.get("format"), node_version(fam, m), m.get("published")]
-        facts = "".join(f"<li>{e(x)}</li>" for x in facts if x) + f'<li><a href="{url}">Direct download</a></li>'
+        here = f"{base}/{fam['dir']}/{m['height']}"
+        objects = stored(m)
+        parts = f"in {len(objects)} parts" if len(objects) > 1 else None
+        needs = free_needed(m)
+        facts = [gib(m.get("bytes")), parts, needs, m.get("format"), node_version(fam, m), m.get("published")]
+        link = (f'<li><a href="{here}/{objects[0]}">Direct download</a></li>' if len(objects) == 1 else
+                f'<li><a href="{here}/manifest.json">Parts: see manifest.json</a></li>')
+        facts = "".join(f"<li>{e(x)}</li>" for x in facts if x) + link
         if fam["node"] == "kogany":
             more += [("Retention", retention(m))]
             if m.get("agrees_with"):
@@ -119,6 +143,9 @@ def card(cfg, data, fam, m, base, group):
                                   f'<a href="{base}/{fam["dir"]}/{m["height"]}/SHA256SUMS">SHA256SUMS</a>'))
         sha = (f'<div class="sha"><span class="label">SHA256 <button class="copy-btn" type="button" '
                f'data-copy-target="sha-{fid}">Copy</button></span><code id="sha-{fid}">{e(m["sha256"])}</code></div>')
+        if len(objects) > 1:
+            sha += ('<p class="small muted">The SHA-256 of the parts joined in order. Each part has its own line '
+                    'in SHA256SUMS, which the release key signs.</p>')
     else:
         height = "Block —"
         facts = "<li>not published yet</li>"
@@ -136,11 +163,15 @@ def card(cfg, data, fam, m, base, group):
 
 
 def restore(cfg, data, fam, group):
-    """The restore steps for one family, with the aria2/curl switch."""
+    """The restore steps for one family, with the tool switch: ycash-bootstrap (ycashd families, first),
+    then curl and aria2 by hand."""
+    tools = ([("bootstrap", "ycash-bootstrap")] if fam["node"] == "ycashd" else []) + [("curl", "curl"), ("aria2", "aria2")]
+    first = tools[0][0] if fam["node"] == "ycashd" else "aria2"
+    buttons = "".join(f'<button type="button" role="tab" aria-selected="{"true" if t == first else "false"}" '
+                      f'data-cmd-tool="{t}">{label}</button>' for t, label in tools)
     return (f'<div class="code snap-restore" data-cmd><div class="code-bar"><span class="file">Restore steps</span>'
             '<span class="seg-sep"></span><div class="seg" role="tablist" aria-label="Download tool">'
-            '<button type="button" role="tab" aria-selected="false" data-cmd-tool="curl">curl</button>'
-            '<button type="button" role="tab" aria-selected="true" data-cmd-tool="aria2">aria2</button></div>'
+            f'{buttons}</div>'
             '<span class="spacer"></span><button class="copy-btn" type="button" data-copy-visible>Copy</button></div>'
             f'{commands(cfg, data, fam)}</div>')
 
@@ -157,6 +188,8 @@ def commands(cfg, data, fam):
     s = lambda t: f'<span class="s">{t}</span>'
     n = iter(range(1, 10))
     lines = [c(f"# {next(n)} · stop the node first, if it is already running"), ""]
+    if fam["node"] == "ycashd":
+        return ycashd_commands(fam, base, key, now, next(n))
     if fam["node"] == "kogany":
         lines += [c("# Kogany's config file and state directory (macOS or Linux)"),
                   f'{k("if")} [ "$({k("uname")})" = Darwin ]; {k("then")}',
@@ -199,6 +232,59 @@ def commands(cfg, data, fam):
                   f'{k("ycashd")} -datadir=$HOME/.ycash -daemon',
                   f'{k("ycash-cli")} -datadir=$HOME/.ycash getblockhash $H; {k("jq")} -r .blockhash manifest.json']
     return f'<pre id="cmd-{fid}">' + "\n".join(lines) + "</pre>"
+
+
+def ycashd_commands(fam, base, key, now, first):
+    """ycashd's restore steps: ycash-bootstrap (streams the parts, one part of extra disk, checks every
+    part before it is used and the node's own state at the height), or by hand with curl or aria2 (the
+    snapshot plus the datadir on disk). The part names come from the manifest when the steps run: a
+    ycash-state/2 manifest names one tarball, a ycash-state/3 one its parts."""
+    fid = fam["id"]
+    c = lambda t: f'<span class="c">{t}</span>'
+    k = lambda t: f'<span class="k">{t}</span>'
+    s = lambda t: f'<span class="s">{t}</span>'
+    stop = [c("# 1 · stop the node first, if it is already running"), ""]
+    conf = []
+    if fam.get("conf"):
+        flags = "\\n".join(fam["conf"]) + "\\n"
+        conf = [f'{k("mkdir")} -p ~/.ycash && {k("printf")} {s(chr(39) + flags + chr(39))} &gt;&gt; ~/.ycash/ycash.conf']
+    source = base + "/" + fam["latest"].rsplit("/", 1)[0] + "/"
+
+    n = iter(range(first, first + 9))
+    auto = [c("# with ycash-bootstrap (ycash6 6.22.0-beta3 or later: contrib/bootstrap/ in the source, on PATH in the ycashd image)"),
+            c("# it checks the signature and every part before use, needs the datadir plus one part (1 GiB) and 1 GiB of working space, and has ycashd check the state offline"), ""]
+    if conf:
+        auto += [c(f"# {next(n)} · this datadir holds the indexes: the node must run with these flags"), *conf, ""]
+    auto += [c(f"# {next(n)} · restore into a datadir with no blocks/ or chainstate/ ({now})"),
+             f'{k("ycash-bootstrap")} --network main --datadir ~/.ycash --source {s(source)} \\',
+             f'  --ycashd "$({k("command")} -v ycashd)" --cli "$({k("command")} -v ycash-cli)"', "",
+             c(f"# {next(n)} · start: it carries on from the snapshot's height"),
+             f'{k("ycashd")} -datadir=$HOME/.ycash -daemon']
+
+    n = iter(range(first, first + 9))
+    names = "(.parts // [{name: .tarball, sha256: .sha256}])[]"
+    hand = [c("# by hand: needs the snapshot plus the datadir on disk (ycash-bootstrap needs one part)"), "",
+            c(f"# {next(n)} · the latest manifest names the height; fetch that height's files"),
+            f'B={s(base + "/" + fam["dir"])}',
+            f'H=$({k("curl")} -fsS $B/{s(fam["latest"].split("/", 1)[1])} | {k("jq")} -r .height)   {c("# " + now)}',
+            f'{k("curl")} -fsS --remote-name-all $B/$H/{{{",".join(fam["files"])}}}',
+            f'P=$({k("jq")} -r {s(chr(39) + names + ".name" + chr(39))} manifest.json)   {c("# the parts, or the one tarball")}',
+            f'<span data-only="aria2">{k("aria2c")} -x16 -c -i &lt;({k("jq")} -r --arg b $B/$H/ '
+            f'{s(chr(39) + names + chr(124) + " $b+.name+" + chr(34) + "\\n  checksum=sha-256=" + chr(34) + "+.sha256" + chr(39))} manifest.json)</span>'
+            f'<span data-only="curl">{k("for")} p {k("in")} $P; {k("do")} {k("curl")} -fL -C - -O $B/$H/$p; {k("done")}</span>', "",
+            c(f"# {next(n)} · check the Ycash release key's signature, then every file against it, and only then"),
+            c("#   join the parts and restore, into a datadir with no blocks/ or chainstate/ (a failed check stops the chain)"),
+            f'{k("minisign")} -Vm SHA256SUMS -P {s(key)} && \\',
+            f'  {k("shasum")} -a 256 -c SHA256SUMS && \\',
+            f'  {k("mkdir")} -p ~/.ycash && {k("cat")} $P | {k("tar")} -xzf - -C ~/.ycash --strip-components=1', ""]
+    if conf:
+        hand += [c(f"# {next(n)} · this datadir holds the indexes: the node must run with these flags"), *conf, ""]
+    hand += [c(f"# {next(n)} · start, then compare block $H with the manifest's blockhash"),
+             f'{k("ycashd")} -datadir=$HOME/.ycash -daemon',
+             f'{k("ycash-cli")} -datadir=$HOME/.ycash getblockhash $H; {k("jq")} -r .blockhash manifest.json']
+    body = (stop + ['<span data-only="bootstrap">' + "\n".join(auto) + "\n</span>"]
+            + ['<span data-only="curl aria2">' + "\n".join(hand) + "</span>"])
+    return f'<pre id="cmd-{fid}">' + "\n".join(body) + "</pre>"
 
 
 def listing(fam, entries, base):

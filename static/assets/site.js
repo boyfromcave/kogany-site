@@ -65,18 +65,23 @@
     });
   }
 
-  // Snapshot commands: one <pre> per node, tool variants marked data-only="aria2|curl".
+  // Snapshot commands: one <pre> per node, variants marked data-only="<family or tool> ..." (space-separated:
+  // shown when one of its families, and one of its tools, is the one selected). The tool shown first is the
+  // one the page marks aria-selected="true".
   function wireCommands() {
     $$("[data-cmd]").forEach(function (box) {
       var fams = $$("[data-cmd-family]", box).map(function (b) { return b.dataset.cmdFamily; });
-      var state = { family: fams[0], tool: "aria2" };
+      var tools = $$("[data-cmd-tool]", box).map(function (b) { return b.dataset.cmdTool; });
+      var picked = $("[data-cmd-tool][aria-selected=true]", box);
+      var state = { family: fams[0], tool: picked ? picked.dataset.cmdTool : tools[0] };
       function render() {
         $$("[data-cmd-family]", box).forEach(function (b) { b.setAttribute("aria-selected", b.dataset.cmdFamily === state.family); });
         $$("[data-cmd-tool]", box).forEach(function (b) { b.setAttribute("aria-selected", b.dataset.cmdTool === state.tool); });
         $$("[data-only]", box).forEach(function (el) {
-          var v = el.dataset.only;
-          el.hidden = (fams.indexOf(v) >= 0 && v !== state.family) ||
-                      ((v === "aria2" || v === "curl") && v !== state.tool);
+          var vs = el.dataset.only.split(" ");
+          var hasFam = vs.some(function (v) { return fams.indexOf(v) >= 0; });
+          var hasTool = vs.some(function (v) { return tools.indexOf(v) >= 0; });
+          el.hidden = (hasFam && vs.indexOf(state.family) < 0) || (hasTool && vs.indexOf(state.tool) < 0);
         });
       }
       $$("[data-cmd-family]", box).forEach(function (b) { b.addEventListener("click", function () { state.family = b.dataset.cmdFamily; render(); }); });
