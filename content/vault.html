@@ -105,7 +105,7 @@ description: Rollout status of the Ycash vault network upgrade, a dated testnet 
           <div><span class="label">Vault activation height</span><span data-field="activation">510,400 on yb-fast</span></div>
           <div><span class="label">Vault branch ID</span>6d5b7a31</div>
         </div>
-        <p>Join a public Ycash testnet with the matching revision and configuration. Keep testnet data apart from mainnet's, and keep JSON-RPC bound to localhost. A bootstrap snapshot is optional.</p>
+        <p>Join a public Ycash testnet with the matching revision and configuration. Keep testnet data apart from mainnet's, and keep JSON-RPC bound to localhost.</p>
         <details>
           <summary>Effective consensus parameters</summary>
           <div class="table-wrap"><table>
@@ -122,7 +122,7 @@ description: Rollout status of the Ycash vault network upgrade, a dated testnet 
         </details>
         <ol class="steps">
           <li><div><b>Get the current pre-release</b><p>Download and verify <code>koganyd</code> v1.8.0-ycash.beta2 from the <a href="/download/">download page</a>, or build its tag. It follows the fast testnet through the Vault activation with <code>ycashd</code>'s block hashes.</p></div></li>
-          <li><div><b>Bootstrap from a snapshot (optional)</b><p>Restore a verified testnet snapshot from the <a href="/snapshots/">snapshots page</a>, or sync from genesis to stay fully self-validating.</p></div></li>
+          <li><div><b>Sync from the seeds</b><p>No testnet snapshot is published: the node syncs the fast testnet from its peers. The <a href="/snapshots/">snapshots page</a> has signed mainnet snapshots only.</p></div></li>
           <li><div><b>Save the configuration and start</b><p>Save the configuration below, start the node, and check <code>getblockchaininfo</code> for the testnet profile and an advancing tip.</p></div></li>
         </ol>
         <div class="code">
