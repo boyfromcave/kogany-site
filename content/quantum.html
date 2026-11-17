@@ -91,9 +91,9 @@ description: How the Ycash vault upgrade lets a transparent address be owned by 
     <div class="table-wrap"><table>
       <thead><tr><th>Software</th><th>Role</th><th>Form</th></tr></thead>
       <tbody>
-        <tr><td><code>ycashd</code> 6.22.0-beta2</td><td>Validates, and its wallet creates, sends from and reports post-quantum addresses</td><td><a href="https://github.com/boyfromcave/ycash6/releases/tag/v6.22.0-beta2">Pre-release binaries</a></td></tr>
-        <tr><td><code>koganyd</code> v1.8.0-ycash.beta2</td><td>Validates the vault upgrade as <code>ycashd</code> 6.22.0-beta2 does, and answers <code>validateaddress</code> for post-quantum addresses. It has no wallet.</td><td><a href="/download/">Pre-release binaries</a></td></tr>
-        <tr><td><code>yewd</code></td><td>The wallet that runs beside <code>koganyd</code>: post-quantum sends and balances by type</td><td><a href="/yewd/">Source only</a> (yew <code>fc56fba7</code>)</td></tr>
+        <tr><td><code>ycashd</code> 6.22.0-beta3</td><td>Validates, and its wallet creates, sends from and reports post-quantum addresses</td><td><a href="https://github.com/boyfromcave/ycash6/releases/tag/v6.22.0-beta3">Pre-release binaries</a></td></tr>
+        <tr><td><code>koganyd</code> v1.8.0-ycash.beta3</td><td>Validates the vault upgrade as <code>ycashd</code> 6.22.0-beta3 does, and answers <code>validateaddress</code> for post-quantum addresses. It has no wallet.</td><td><a href="/download/">Pre-release binaries</a></td></tr>
+        <tr><td><code>yewd</code></td><td>The wallet that runs beside <code>koganyd</code>: post-quantum sends and balances by type</td><td><a href="/yewd/">Source only</a> (yew <code>47898988</code>)</td></tr>
         <tr><td>YecWallet</td><td>Desktop wallet</td><td>Pre-release (<a href="/download/#yecwallet">download</a>)</td></tr>
         <tr><td>YEW</td><td>Mobile wallet</td><td>Source only, on its development branch. No release yet.</td></tr>
       </tbody>
@@ -120,8 +120,8 @@ description: How the Ycash vault upgrade lets a transparent address be owned by 
     <p>All reviews are listed on the <a href="/yellowback/audits/">audits page</a>.</p>
 
     <h2 id="try">Try it on the fast testnet</h2>
-    <p>With <code>ycashd</code> 6.22.0-beta2 (<a href="https://github.com/boyfromcave/ycash6/releases/tag/v6.22.0-beta2">release and verification steps</a>), from the unpacked package directory:</p>
-    <div class="code"><div class="code-bar"><span class="file">ycashd 6.22.0-beta2 · fast testnet</span><span class="spacer"></span><button class="copy-btn" type="button" data-copy-target="pq-try">Copy</button></div>
+    <p>With <code>ycashd</code> 6.22.0-beta3 (<a href="https://github.com/boyfromcave/ycash6/releases/tag/v6.22.0-beta3">release and verification steps</a>), from the unpacked package directory:</p>
+    <div class="code"><div class="code-bar"><span class="file">ycashd 6.22.0-beta3 · fast testnet</span><span class="spacer"></span><button class="copy-btn" type="button" data-copy-target="pq-try">Copy</button></div>
 <pre id="pq-try"><span class="k">mkdir</span> -p ~/.ycash-fast
 <span class="k">printf</span> <span class="s">'testnet=1\ntestnetprofile=fast\naddnode=fastnet-seed.ycash.team\n'</span> &gt; ~/.ycash-fast/ycash.conf
 ./ycashd -datadir=$HOME/.ycash-fast -daemon
