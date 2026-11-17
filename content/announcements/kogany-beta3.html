@@ -1,15 +1,15 @@
 <!--
-title: Kogany @KOGANY_TAG@ pre-release
+title: Kogany v1.8.0-ycash.beta3 pre-release
 description: The third koganyd pre-release adds the chain's transparent value pools by address type, a coinbase for each miner's own address, Sapling coinbases, JSON-RPC 1.0 batches and ycashd's limit on deep reorganisations.
-date: YYYY-MM-DD
+date: 2026-11-17
 banner: beta3 | pre-release
 -->
-<p><strong>koganyd @KOGANY_TAG@</strong> is out: Kogany, the Ycash node on Zakura, with the vault network upgrade and the Ycash Yellowback (YED) rule module. Binaries for Linux (x86_64, aarch64) and macOS (Apple silicon) are on the <a href="https://github.com/boyfromcave/kogany/releases/tag/@KOGANY_TAG@" rel="noopener">release page</a>; the <a href="/download/">download page</a> shows how to verify them.</p>
+<p><strong>koganyd v1.8.0-ycash.beta3</strong> is out: Kogany, the Ycash node on Zakura, with the vault network upgrade and the Ycash Yellowback (YED) rule module. Binaries for Linux (x86_64, aarch64) and macOS (Apple silicon) are on the <a href="https://github.com/boyfromcave/kogany/releases/tag/v1.8.0-ycash.beta3" rel="noopener">release page</a>; the <a href="/download/">download page</a> shows how to verify them.</p>
 <p><strong>It is a pre-release, for testing.</strong> Kogany is not yet a qualified Ycash node line. Run it on the Ycash testnets and expect resyncs and breaking changes between pre-releases. No activation height for the vault upgrade is set on mainnet.</p>
 <h2>What you must do when upgrading</h2>
 <ul>
   <li><strong>Allow a minute or two for the first start.</strong> It upgrades the database once, from state format 30.2.0 to 30.3.0. The node serves no RPC until it is done, and an interrupted start continues where it stopped. The step is one-way, but a beta2 <code>koganyd</code> still opens the upgraded database.</li>
-  <li><strong>On the fast testnet, upgrade before the development fund's mandate ends there.</strong> The height is set when the release candidate is cut, and the release notes name it. From that height a block without the fund output is valid, and an older node rejects it and leaves the chain. Mainnet and the slow and legacy testnets are unchanged.</li>
+  <li><strong>On the fast testnet, upgrade now.</strong> The development fund's mandate ended there at block 512,417, reached on 17 Nov 2026. From that height a block without the fund output is valid and miners are paid in full; a node older than beta3 rejects it, stops at 512,416 and must be upgraded. Mainnet and the slow and legacy testnets are unchanged.</li>
   <li><strong>Clients:</strong> <code>rpcversion</code> is 10 (it was 9). A client that requires exactly 9 must accept 10.</li>
   <li><strong>Miners:</strong> the development-fund donation now defaults to 0 %. To keep donating after the mandate, set <code>ydf = 5</code> under <code>[mining]</code>.</li>
   <li><strong>Explorer nodes:</strong> set <code>[rpc] insight_explorer = true</code> for <code>ycashd</code>'s <code>-insightexplorer</code> input fields and <code>blockfee</code>. It is off by default; keep it off where untrusted clients reach the RPC port.</li>
