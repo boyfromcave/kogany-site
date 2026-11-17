@@ -17,7 +17,7 @@
       "heading": "Kogany snapshots",
       "lead": "Kogany's state database, for koganyd only.",
       "notes": [
-        "State format 30.2.0 (koganyd beta1 and beta2). A build with another format ignores it and syncs from genesis."
+        "State format 30.2.0 (koganyd beta1 and beta2). koganyd beta3 restores it and upgrades it to 30.3.0 once at the first start; a build with another format ignores it and syncs from genesis."
       ]
     },
     {
