@@ -115,13 +115,13 @@ description: Rollout status of the Ycash vault network upgrade, a dated testnet 
               <tr><td>New opcodes</td><td>0xb2 CHECKSEQUENCEVERIFY · 0xc0 CHECKSETSIG · 0xc1 CHECKSETDORMANT · 0xc2 CHECKPQSIG</td></tr>
               <tr><td>Owner signatures</td><td>SLH-DSA (SHA2-128s)</td></tr>
               <tr><td>YED holder signatures</td><td>Falcon-512</td></tr>
-              <tr><td>rpcversion</td><td>9</td></tr>
+              <tr><td>rpcversion</td><td>10</td></tr>
               <tr><td>Proof of work</td><td>Equihash (192,7)</td></tr>
             </tbody>
           </table></div>
         </details>
         <ol class="steps">
-          <li><div><b>Get the current pre-release</b><p>Download and verify <code>koganyd</code> v1.8.0-ycash.beta2 from the <a href="/download/">download page</a>, or build its tag. It follows the fast testnet through the Vault activation with <code>ycashd</code>'s block hashes.</p></div></li>
+          <li><div><b>Get the current pre-release</b><p>Download and verify <code>koganyd</code> v1.8.0-ycash.beta3 from the <a href="/download/">download page</a>, or build its tag. It follows the fast testnet through the Vault activation with <code>ycashd</code>'s block hashes.</p></div></li>
           <li><div><b>Sync from the seeds</b><p>No testnet snapshot is published: the node syncs the fast testnet from its peers. The <a href="/snapshots/">snapshots page</a> has signed mainnet snapshots only.</p></div></li>
           <li><div><b>Save the configuration and start</b><p>Save the configuration below, start the node, and check <code>getblockchaininfo</code> for the testnet profile and an advancing tip.</p></div></li>
         </ol>

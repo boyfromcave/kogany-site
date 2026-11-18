@@ -450,7 +450,7 @@ a.portrait { text-decoration: none; }
 /* === end post-quantum === */
 
 /* ===== snapshots page: Kogany / Ycash6 tabs (snapshots_render.py, wireTabs) — begin ===== */
-.snap-tablist { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--rule-strong); margin: 2rem 0 2.4rem; }
+.snap-tablist { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; border: 1px solid var(--rule-strong); margin: 2rem 0 2.4rem; }
 html:not([data-js]) .snap-tablist { display: none; }
 .snap-tablist [role="tab"] { background: none; border: 0; border-left: 1px solid var(--rule-strong); border-bottom: 3px solid transparent; color: var(--text-muted); cursor: pointer; padding: 1.1rem 1rem 1rem; text-align: center; font: inherit; }
 .snap-tablist [role="tab"]:first-child { border-left: 0; }

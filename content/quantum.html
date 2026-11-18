@@ -76,7 +76,7 @@ description: How the Ycash vault upgrade lets a transparent address be owned by 
     <ul>
       <li>A post-quantum input may carry a scriptSig of up to 9,000 bytes under relay policy. Other inputs keep the 1,650-byte limit. The consensus bounds, a 10,000-byte script and a 2 MB block, do not change.</li>
       <li>For relay and block templates each <code>OP_CHECKPQSIG</code> counts as 20 signature operations. Consensus counts none, so the sigop count of historical blocks does not change.</li>
-      <li>Wallets price transactions with a post-quantum input by size, not with the flat fee. In beta2 that comes to about 27,000 zat for one SLH-DSA input and 5,500 zat for one FN-DSA-512 input. With an attested price the target rate is $0.02 per KB for plain YEC and $0.05 per KB for vault and Yellowback transactions, with a floor of 5,000 zat per KB. All of this is wallet and relay policy: no fee rule is in consensus.</li>
+      <li>Wallets price transactions with a post-quantum input by size, not with the flat fee. Since beta2 that comes to about 27,000 zat for one SLH-DSA input and 5,500 zat for one FN-DSA-512 input. With an attested price the target rate is $0.02 per KB for plain YEC and $0.05 per KB for vault and Yellowback transactions, with a floor of 5,000 zat per KB. All of this is wallet and relay policy: no fee rule is in consensus.</li>
       <li>A wrapped (P2SH) post-quantum script is valid but not relayed.</li>
     </ul>
     <h3>Wallets and RPCs</h3>
@@ -91,10 +91,11 @@ description: How the Ycash vault upgrade lets a transparent address be owned by 
     <div class="table-wrap"><table>
       <thead><tr><th>Software</th><th>Role</th><th>Form</th></tr></thead>
       <tbody>
-        <tr><td><code>ycashd</code> 6.22.0-beta2</td><td>Validates, and its wallet creates, sends from and reports post-quantum addresses</td><td><a href="https://github.com/boyfromcave/ycash6/releases/tag/v6.22.0-beta2">Pre-release binaries</a></td></tr>
-        <tr><td><code>koganyd</code> v1.8.0-ycash.beta2</td><td>Validates the vault upgrade as <code>ycashd</code> 6.22.0-beta2 does, and answers <code>validateaddress</code> for post-quantum addresses. It has no wallet.</td><td><a href="/download/">Pre-release binaries</a></td></tr>
-        <tr><td><code>yewd</code></td><td>The wallet that runs beside <code>koganyd</code>: post-quantum sends and balances by type</td><td><a href="/yewd/">Source only</a> (yew <code>fc56fba7</code>)</td></tr>
-        <tr><td>YecWallet, YEW</td><td>Desktop and mobile wallets</td><td>Support is in source on their development branches. No release yet.</td></tr>
+        <tr><td><code>ycashd</code> 6.22.0-beta3</td><td>Validates, and its wallet creates, sends from and reports post-quantum addresses</td><td><a href="https://github.com/boyfromcave/ycash6/releases/tag/v6.22.0-beta3">Pre-release binaries</a></td></tr>
+        <tr><td><code>koganyd</code> v1.8.0-ycash.beta3</td><td>Validates the vault upgrade as <code>ycashd</code> 6.22.0-beta3 does, and answers <code>validateaddress</code> for post-quantum addresses. It has no wallet.</td><td><a href="/download/">Pre-release binaries</a></td></tr>
+        <tr><td><code>yewd</code></td><td>The wallet that runs beside <code>koganyd</code>: post-quantum sends and balances by type</td><td><a href="/yewd/">Source only</a> (yew <code>47898988</code>)</td></tr>
+        <tr><td>YecWallet</td><td>Desktop wallet</td><td>Pre-release (<a href="/download/#yecwallet">download</a>)</td></tr>
+        <tr><td>YEW</td><td>Mobile wallet</td><td>Source only, on its development branch. No release yet.</td></tr>
       </tbody>
     </table></div>
 
@@ -119,8 +120,8 @@ description: How the Ycash vault upgrade lets a transparent address be owned by 
     <p>All reviews are listed on the <a href="/yellowback/audits/">audits page</a>.</p>
 
     <h2 id="try">Try it on the fast testnet</h2>
-    <p>With <code>ycashd</code> 6.22.0-beta2 (<a href="https://github.com/boyfromcave/ycash6/releases/tag/v6.22.0-beta2">release and verification steps</a>), from the unpacked package directory:</p>
-    <div class="code"><div class="code-bar"><span class="file">ycashd 6.22.0-beta2 · fast testnet</span><span class="spacer"></span><button class="copy-btn" type="button" data-copy-target="pq-try">Copy</button></div>
+    <p>With <code>ycashd</code> 6.22.0-beta3 (<a href="https://github.com/boyfromcave/ycash6/releases/tag/v6.22.0-beta3">release and verification steps</a>), from the unpacked package directory:</p>
+    <div class="code"><div class="code-bar"><span class="file">ycashd 6.22.0-beta3 · fast testnet</span><span class="spacer"></span><button class="copy-btn" type="button" data-copy-target="pq-try">Copy</button></div>
 <pre id="pq-try"><span class="k">mkdir</span> -p ~/.ycash-fast
 <span class="k">printf</span> <span class="s">'testnet=1\ntestnetprofile=fast\naddnode=fastnet-seed.ycash.team\n'</span> &gt; ~/.ycash-fast/ycash.conf
 ./ycashd -datadir=$HOME/.ycash-fast -daemon
@@ -135,7 +136,7 @@ description: How the Ycash vault upgrade lets a transparent address be owned by 
     <ul>
       <li>NIST: <a href="https://csrc.nist.gov/pubs/fips/205/final">FIPS 205, SLH-DSA</a> · <a href="https://csrc.nist.gov/projects/post-quantum-cryptography">Post-Quantum Cryptography project</a> (Falcon / FN-DSA) · <a href="https://www.nist.gov/news-events/news/2022/07/nist-announces-first-four-quantum-resistant-cryptographic-algorithms">2022 selection</a></li>
       <li>Specifications: <a href="https://github.com/boyfromcave/yellowback/blob/upgrade/vault/docs/plans/yellowback-quantum-plan.md">post-quantum plan</a> · <a href="https://github.com/boyfromcave/yellowback/blob/upgrade/vault/docs/plans/yellowback-quantum-spec.md">byte layouts and address encoding</a> · <a href="https://github.com/boyfromcave/yellowback/blob/upgrade/vault/docs/plans/yellowback-quantum-fees-spec.md">fee structure</a></li>
-      <li>Implementation: <a href="https://github.com/boyfromcave/ycash6/blob/upgrade/vault/src/crypto/pq/README.md">the vendored libraries, patches and test vectors</a> · <a href="https://github.com/boyfromcave/ycash6/blob/upgrade/vault/doc/vault-rpc.md">vault RPCs</a> · <a href="https://github.com/boyfromcave/ycash-dd/blob/upgrade/vault/doc/yellowback-pq-dos.md">denial-of-service measurement</a> · <a href="https://github.com/boyfromcave/ycash6/blob/v6.22.0-beta2/doc/release-notes/release-notes-6.22.0-beta2.md">6.22.0-beta2 release notes</a></li>
+      <li>Implementation: <a href="https://github.com/boyfromcave/ycash6/blob/upgrade/vault/src/crypto/pq/README.md">the vendored libraries, patches and test vectors</a> · <a href="https://github.com/boyfromcave/ycash6/blob/upgrade/vault/doc/vault-rpc.md">vault RPCs</a> · <a href="https://github.com/boyfromcave/ycash-dd/blob/upgrade/vault/doc/yellowback-pq-dos.md">denial-of-service measurement</a> · <a href="https://github.com/boyfromcave/ycash6/blob/v6.22.0-beta3/doc/release-notes/release-notes-6.22.0-beta3.md">6.22.0-beta3 release notes</a> · <a href="https://github.com/boyfromcave/ycash6/blob/v6.22.0-beta2/doc/release-notes/release-notes-6.22.0-beta2.md">6.22.0-beta2 release notes</a></li>
       <li>Review: <a href="https://github.com/boyfromcave/yellowback/blob/upgrade/vault/docs/audits/yellowback-falcon-consensus-audit-20261010.md">Falcon-512 consensus audit</a> · <a href="/yellowback/audits/">all audits</a></li>
       <li>On this site: <a href="/vault/">vault dashboard</a> · <a href="/download/">download</a> · <a href="/announcements/post-quantum-vaults/">Vaults are post-quantum from day one</a></li>
     </ul>
