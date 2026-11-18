@@ -167,11 +167,18 @@
       "label": "Earlier tip"
     },
     {
-      "height": 3087294,
+      "height": 3105000,
       "families": [
         "ycashd"
       ],
       "label": "Tip"
+    },
+    {
+      "height": 3087294,
+      "families": [
+        "ycashd"
+      ],
+      "label": "Earlier tip"
     },
     {
       "height": 3079999,

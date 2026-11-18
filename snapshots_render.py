@@ -252,14 +252,20 @@ def ycashd_commands(fam, base, key, now, first):
 
     n = iter(range(first, first + 9))
     auto = [c("# with ycash-bootstrap (ycash6 6.22.0-beta3 or later: contrib/bootstrap/ in the source, on PATH in the ycashd image)"),
-            c("# it checks the signature and every part before use, needs the datadir plus one part (1 GiB) and 1 GiB of working space, and has ycashd check the state offline"), ""]
+            c("# it checks the signature and every part before use and needs the datadir plus one part (1 GiB) and 1 GiB of working space"), "",
+            c("# known issue in 6.22.0-beta3: snapshot restores with the node check are refused on mainnet. Run with"),
+            c("#   --ycashd and --cli, this release's ycash-bootstrap downloads and unpacks the whole bundle, then reports"),
+            c("#   that vault_statehash disagrees, removes the restored files and leaves main.bootstrap-incomplete."),
+            c("#   The bundles are fine. Workaround: restore without --ycashd/--cli, as below (the signature, the checksums"),
+            c("#   and every file's hash are still checked), then start the node; or use ycash-bootstrap from upgrade/vault"),
+            c("#   (ycash6 #139), add --ycashd \"$(command -v ycashd)\" --cli \"$(command -v ycash-cli)\", and ycashd checks the state offline"), ""]
     if conf:
         auto += [c(f"# {next(n)} · this datadir holds the indexes: the node must run with these flags"), *conf, ""]
     auto += [c(f"# {next(n)} · restore into a datadir with no blocks/ or chainstate/ ({now})"),
-             f'{k("ycash-bootstrap")} --network main --datadir ~/.ycash --source {s(source)} \\',
-             f'  --ycashd "$({k("command")} -v ycashd)" --cli "$({k("command")} -v ycash-cli)"', "",
+             f'{k("ycash-bootstrap")} --network main --datadir ~/.ycash --source {s(source)}', "",
              c(f"# {next(n)} · start: it carries on from the snapshot's height"),
-             f'{k("ycashd")} -datadir=$HOME/.ycash -daemon']
+             f'{k("ycashd")} -datadir=$HOME/.ycash -daemon',
+             c("# without the node check: compare ycash-cli getblockhash at the snapshot's height with the manifest's blockhash")]
 
     n = iter(range(first, first + 9))
     names = "(.parts // [{name: .tarball, sha256: .sha256}])[]"
