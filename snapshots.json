@@ -1,5 +1,5 @@
 {
-  "_comment": "What the snapshots page reads at build time. The page has one tab per group. The bucket cannot be listed publicly, so the candidate heights are listed here; a height whose manifest is not published yet is simply not shown, and a family with \"hide_until_published\" shows no card until its first manifest is published. A manifest is used only where its format, network, height, storage mode (kogany) and flavour (ycashd) match the family. Layout and fields: ycash-infra bundles/state/FORMAT.md (ycash-state/2, kogany-state/1 and /2) and bundles/state/mainnet/README.md; the full-insight layout (main-insight/) is ycash-infra PR 44. A hidden family with \"coming\" shows that one muted line in its tab instead, until its manifest is published.",
+  "_comment": "What the snapshots page reads at build time. The page has one tab per group. The bucket cannot be listed publicly, so the candidate heights are listed here; a height whose manifest is not published yet is simply not shown, and a family with \"hide_until_published\" shows no card until its first manifest is published. A manifest is used only where its format, network, height, storage mode (kogany) and flavour (ycashd) match the family. Layout and fields: ycash-infra bundles/state/FORMAT.md (ycash-state/2; ycash-state/3, the same stream stored in parts that the manifest names; kogany-state/1 and /2) and bundles/state/mainnet/README.md; the full-insight layout (main-insight/) is ycash-infra PR 44. A hidden family with \"coming\" shows that one muted line in its tab instead, until its manifest is published.",
   "base": "https://snapshots.ycash.team",
   "key": {
     "id": "02C923A6C593AF18",
@@ -91,7 +91,8 @@
       "dir": "main",
       "latest": "main/latest/manifest.json",
       "formats": [
-        "ycash-state/2"
+        "ycash-state/2",
+        "ycash-state/3"
       ],
       "flavour": "full",
       "storage_mode": null,
@@ -118,7 +119,8 @@
       "dir": "main-insight",
       "latest": "main-insight/latest/manifest.json",
       "formats": [
-        "ycash-state/2"
+        "ycash-state/2",
+        "ycash-state/3"
       ],
       "flavour": "full-insight",
       "storage_mode": null,
@@ -165,11 +167,18 @@
       "label": "Earlier tip"
     },
     {
-      "height": 3087294,
+      "height": 3105000,
       "families": [
         "ycashd"
       ],
       "label": "Tip"
+    },
+    {
+      "height": 3087294,
+      "families": [
+        "ycashd"
+      ],
+      "label": "Earlier tip"
     },
     {
       "height": 3079999,
